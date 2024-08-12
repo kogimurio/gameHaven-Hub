@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<style>
+    body {
+        background-color: #f8f9fa;
+    }
+    .register-container {
+        max-width: 500px;
+        margin: 50px auto;
+        background-color: #fff;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
+    }
+    .register-container h2 {
+        text-align: center;
+        margin-bottom: 20px;
+        font-weight: bold;
+        color: #343a40;
+    }
+    .register-container .form-group label {
+        font-weight: 500;
+        color: #343a40;
+    }
+    .register-container .btn-register {
+        width: 100%;
+        background-color: #ff5722;
+        color: #fff;
+        border-radius: 50px;
+    }
+    .register-container .btn-register:hover {
+        background-color: #e64a19;
+    }
+    .register-container .form-text {
+        text-align: center;
+        color: #6c757d;
+    }
+    .register-container .form-text a {
+        color: #ff5722;
+        text-decoration: none;
+    }
+    .register-container .form-text a:hover {
+        text-decoration: underline;
+    }
+</style>
+
+<div class="register-container">
+    <h2>Create Your Account</h2>
+    <form method="POST">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="id_username">Username</label>
+            <input type="text" name="username" class="form-control" id="id_username" required>
+        </div>
+        <div class="form-group">
+            <label for="id_email">Email</label>
+            <input type="email" name="email" class="form-control" id="id_email" required>
+        </div>
+        <div class="form-group">
+            <label for="id_password1">Password</label>
+            <input type="password" name="password1" class="form-control" id="id_password1" required>
+        </div>
+        <div class="form-group">
+            <label for="id_password2">Confirm Password</label>
+            <input type="password" name="password2" class="form-control" id="id_password2" required>
+        </div>
+        <button type="submit" class="btn btn-register mt-4">Register</button>
+    </form>
+    <p class="form-text mt-3">Already have an account? <a href="{% url 'login' %}">Log in here</a></p>
+</div>
+{% endblock %}
