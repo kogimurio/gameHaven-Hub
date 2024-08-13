@@ -49,10 +49,7 @@
             <ul class="navbar-nav ml-auto">
                 {% if request.user.is_authenticated %}
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'home' %}">Home</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Games</a>
+                    <a class="nav-link" href="{% url 'game_list' %}">Games List</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="#">Events</a>
@@ -71,30 +68,19 @@
                 </li>
                 {% else %}
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'home' %}">Home</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Games</a>
-                </li>
-                <li class="nav-item">
                     <a class="nav-link" href="#">Events</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="#">Contact</a>
                 </li>
                 <li class="nav-item">
-                    <a class="btn btn-custom" href="{% url 'register' %}">Join Now</a>
+                    <a class="btn btn-custom" href="{% url 'login' %}">Join Now</a>
                 </li>
                 
                 {% endif %}
             </ul>
         </div>
     </nav>
-    <div>
-        {% for message in messages %}
-        <p>{{message}}</p>
-        {% endfor %}
-    </div>
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.0.9/dist/umd/popper.min.js"></script>

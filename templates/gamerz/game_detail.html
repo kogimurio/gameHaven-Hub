@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+    <h1>{{ game.title }}</h1>
+    <p>{{ game.description }}</p>
+    <p>Genre: {{ game.genre }}</p>
+    <p>Rating: {{ game.rating }}</p>
+    <a href="{% url 'favorite_game' game.id %}">
+        {% if game in user.favorite_games.all %}
+        Remove from Favorites
+        {% else %}
+        Add to Favorites
+        {% endif %}
+</a>
+</div>
+{% endblock %}

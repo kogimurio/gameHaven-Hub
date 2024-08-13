@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block title %}Game List{% endblock %}
+
+{% block content %}
+<div class="container">
+    <style>
+        /* style.css */
+        .game-list-title {
+            color: #333;
+        }
+        
+        .card-title {
+            color: #007bff;
+        }
+        
+        .card-text {
+            color: #555;
+        }
+        
+        .card {
+            border-color: #ccc;
+        }
+        
+        .card-img-top {
+            width: 100%;
+            height: 200px; /* Adjust height as needed */
+            object-fit: cover; /* Ensures the image covers the area while maintaining aspect ratio */
+        }
+    </style>
+    <h1>Game List</h1>
+    <div class="row">
+        {% for game in games %}
+        <div class="col-md-4">
+            <div class="card mb-4">
+                {% if game.image %}
+                <img src="{{ game.image.url }}" class="card-img-top" alt="{{ game.title }}">
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ game.title }}</h5>
+                    <p class="card-text">{{ game.description|truncatewords:20 }}</p>
+                    <a href="{% url 'game_detail' game.id %}" class="btn btn-primary">View Details</a>
+                    {% if game in request.user.favorite_games.all %}
+                    <a href="{% url 'remove_favorite' game.id %}" class="btn btn-danger">Remove from Favorites</a>
+                    {% else %}
+                    <a href="{% url 'add_favorite' game.id %}" class="btn btn-success">Add to Favorites</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

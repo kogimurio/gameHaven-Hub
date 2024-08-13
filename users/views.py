@@ -5,38 +5,60 @@ from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm
 from datetime import datetime
 import pyotp
+from .models import User
 from django.contrib.auth import get_user_model
+
 
 from datetime import datetime, timedelta
 from django.contrib import messages
 from django.conf import settings
 from django.core.mail import send_mail
+import logging
 
+
+logger = logging.getLogger(__name__)
 def send_otp(request):
-    totp = pyotp.TOTP(pyotp.random_base32(), interval=60)
+    # Check if 'otp_secret_key' already exists in session
+    if 'otp_secret_key' not in request.session:
+        secret_key = pyotp.random_base32()
+        request.session['otp_secret_key'] = secret_key
+    else:
+        secret_key = request.session['otp_secret_key']
+    
+    totp = pyotp.TOTP(secret_key, interval=300)  # Interval set to 5 minutes
     otp = totp.now()
-    request.session['otp_secret_key'] = totp.secret
+    
     valid_date = datetime.now() + timedelta(minutes=5)
     request.session['otp_valid_date'] = str(valid_date)
 
     # Get the user's email from the session
     username = request.session.get('username')
-    User = get_user_model()
+    if not username:
+        messages.error(request, 'Session expired or invalid. Please log in again.')
+        return redirect('login')
+
+    UserModel = get_user_model()
 
     try:
-        user = User.objects.get(username=username)
+        user = UserModel.objects.get(username=username)
         email = user.email
-    except User.DoesNotExist:
+    except UserModel.DoesNotExist:
         messages.error(request, 'User does not exist')
         return redirect('login')
 
     # Prepare and send the OTP email
     subject = 'Your OTP Code'
-    message = f'Your one-time-password (OTP) is {otp}. Its valid for 2 minute'
+    message = f'Your one-time-password (OTP) is {otp}. It is valid for 5 minutes.'
     email_from = settings.EMAIL_HOST_USER
     recipient_list = [email]
 
-    send_mail(subject, message, email_from, recipient_list)
+    try:
+        send_mail(subject, message, email_from, recipient_list)
+        logger.info(f'OTP sent to {email}: {otp}')
+    except Exception as e:
+        logger.error(f'Failed to send OTP email to {email}: {e}')
+        messages.error(request, 'Failed to send OTP email. Please try again.')
+        return redirect('login')
 
 
 def login_view(request):
@@ -70,11 +92,12 @@ def login_view(request):
 
 def otp_view(request):
     if request.method == "POST":
-        otp = request.POST['otp']
+        otp_input = request.POST.get('otp')
         username = request.session.get('username')
 
-        # Debugging: Check what is stored in the session
-        print(f"Username from session: {username}")
+        if not username:
+            messages.error(request, 'Session expired or invalid. Please log in again.')
+            return redirect('login')
 
         otp_secret_key = request.session.get('otp_secret_key')
         otp_valid_until = request.session.get('otp_valid_date')
@@ -82,35 +105,56 @@ def otp_view(request):
         if otp_secret_key and otp_valid_until:
             valid_until = datetime.fromisoformat(otp_valid_until)
 
-            if valid_until > datetime.now():
-                totp = pyotp.TOTP(otp_secret_key, interval=60)
-                if totp.verify(otp):
+            if datetime.now() <= valid_until:
+                totp = pyotp.TOTP(otp_secret_key, interval=300)  # Ensure interval matches
+                if totp.verify(otp_input):
                     # Retrieve the user instance
-                    User = get_user_model()
+                    UserModel = get_user_model()
                     try:
-                        user = User.objects.get(username=username)
-                        # Debugging: Confirm user was found
-                        print(f"Found user: {user}")
-                    except User.DoesNotExist:
+                        user = UserModel.objects.get(username=username)
+                        logger.info(f'User {username} authenticated successfully with OTP.')
+                    except UserModel.DoesNotExist:
                         messages.error(request, 'User not found')
+                        logger.error(f'User {username} not found during OTP verification.')
                         return redirect('login')
 
                     # Log in the user
                     login(request, user)
 
                     # Clean up session data
-                    del request.session['otp_secret_key']
-                    del request.session['otp_valid_date']
+                    request.session.pop('otp_secret_key', None)
+                    request.session.pop('otp_valid_date', None)
 
-                    return redirect('home')
+                    # Redirect based on role
+                    if user.role == 'ADMIN':
+                        return redirect('admin')
+                    elif user.role == 'EMPLOYEE':
+                        return redirect('employee')
+                    else:
+                        return redirect('gamerz')
                 else:
                     messages.error(request, 'Invalid OTP')
+                    logger.warning(f'Invalid OTP entered by user {username}.')
             else:
                 messages.error(request, 'OTP has expired')
+                logger.warning(f'OTP for user {username} has expired.')
         else:
             messages.error(request, 'Oops, something went wrong')
-    
+            logger.error(f'OTP session data missing for user {username}.')
+
     return render(request, 'users/otp.html')
+
+
+def admin_dashboard_view(request):
+    return render(request, 'users/admin.html')
+
+
+def employee_dashboard_view(request):
+    return render(request, 'users/employee.html')
+
+
+#def gamer_dashboard_view(request):
+#    return render(request, 'users/gamer.html')
 
 
 def logout_view(request):
@@ -125,9 +169,13 @@ def register_view(request):
     if request.method == "POST":
         form = UserRegistrationForm(request.POST)
         if form.is_valid():
-            user = form.save()
-            login(request, user)
-            return redirect('home')
+            user = form.save(commit=False)
+            user.role = form.cleaned_data.get('role', 'GAMER')  # Default to 'GAMER' if no role is provided
+            user.save()
+
+            # Store the username in session
+            request.session['username'] = user.username
+            return redirect('login')
         else:
             for error in list(form.errors.values()):
                 print(request, error)

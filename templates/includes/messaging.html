@@ -1,0 +1,38 @@
+<style>
+    .custom-input {
+        width: 600px;
+        text-align:center;
+    }
+    .mainheight{
+        margin-top: 0.5px;
+    }
+</style>
+<div class="d-flex align-items-center text-center justify-content-center mainheight">
+    {% if messages %}
+    {% for message in messages %}
+        {% if message.tags == 'success' %}
+            <div class="text-center alert alert-success alert-dismissible custom-input" role="alert">
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="close"></button>
+                {{message|safe|escape}}
+            </div>
+            {% elif message.tags == 'error' %}
+            <div class="text-center alert alert-danger alert-dismissible custom-input" role="alert">
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="close"></button>
+                {{message|safe}}
+            </div>
+            {% elif message.tags == 'info' %}
+            <div class="text-center alert alert-info alert-dismissible custom-input" role="alert">
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="close"></button>
+                {{message|safe|escape}}
+            </div>
+            {% elif message.tags == 'warning' %}
+            <div class="text-center alert alert-warning alert-dismissible custom-input" role="alert">
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="close"></button>
+                {{message|safe|escape}}
+            </div>
+        {% endif %}
+    {% endfor %}
+{% endif %}
+</div>
+
+
