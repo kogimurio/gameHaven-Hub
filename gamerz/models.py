@@ -24,6 +24,10 @@ class Reservation(models.Model):
     station = models.ForeignKey(GamingStation, on_delete=models.CASCADE)
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
+    duration = models.IntegerField(default=1)  # Duration in hours
+
+    def calculate_cost(self):
+        return self.duration * 200  # Ksh 200 per hour
 
     def __str__(self):
         return f"{self.user.username} - {self.station.name} ({self.start_time} to {self.end_time})"

@@ -13,7 +13,7 @@ urlpatterns = [
     path('favoritegame/<int:game_id>', views.favorite_game_view, name='favorite_game'),
     path('gameform/', views.gameform, name='gameform'),
     path('reservation/', views.reservation_view, name='reservation'),
-    path('reservation_list/', views.reservation_list_view, name='reservation_list'),
+    path('reservationlist/', views.reservation_list_view, name='reservation_list'),
     path('leaderboard/', views.leaderboard_view, name='leaderboard'),
     path('achievement/<int:game_id>', views.achievement_view, name='achievement'),
     path('chat/<int:room_id>/', views.chat_room_view, name='chat_room'),
@@ -21,4 +21,7 @@ urlpatterns = [
     path('chat/<int:room_id>/send_message/', views.send_message, name='send_message'),
     path('shoplocation/', views.shop_location_view, name='shop_location'),
     path('favoritegames/', views.favorite_games_list_view, name='favorite_games_list'),
+    path('payments/<int:reservation_id>', views.payments_view, name='payments'),
+    path('mpesa/<int:reservation_id>/', views.mpesa_view, name='mpesa'),
+    path('paypal/<int:reservation_id>/', views.paypal_view, name='paypal'),
 ]

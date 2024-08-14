@@ -1,10 +1,16 @@
 {% extends "base.html" %}
+{% block title %} Reservation{% endblock %}
 {% block content %}
 <div class="container">
     <h1>Your Reservations</h1>
     <ul>
-        {% for reservation in reservations %}
-            <li>{{ reservation.station.name }} ({{ reservation.start_time }} to {{ reservation.end_time }})</li>
+        {% for reservation in reservation_data %}
+            <li>
+                {{ reservation.station_name }} 
+                ({{ reservation.start_time }} to {{ reservation.end_time }}) 
+                - {{ reservation.total_hours|floatformat:2 }} hour{{ reservation.total_hours|pluralize }} 
+                - Total Cost: Ksh {{ reservation.total_cost|floatformat:0 }}
+            </li>
         {% endfor %}
     </ul>
 </div>

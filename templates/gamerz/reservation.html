@@ -1,17 +1,50 @@
 {% extends "base.html" %}
+{% block title %} Reserve a Gaming Station {% endblock %}
 {% block content %}
 <div class="container">
     <h1>Reserve a Gaming Station</h1>
-<form method="post">
-    {% csrf_token %}
-    <select name="station_id">
-        {% for station in stations %}
-        <option value="{{ station.id }}">{{ station.name }}</option>
-        {% endfor %}
-    </select>
-    <input type="datetime-local" name="start_time" required>
-    <input type="datetime-local" name="end_time" required>
-    <button type="submit">Reserve</button>
-</form>
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="station_id">Choose a Gaming Station:</label>
+            <select name="station_id" id="station_id" class="form-control">
+                {% for station in stations %}
+                <option value="{{ station.id }}">{{ station.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="start_time">Choose Start Time:</label>
+            <input type="datetime-local" name="start_time" id="start_time" class="form-control" required>
+        </div>
+        <div class="form-group">
+            <label for="duration">Select Duration:</label>
+            <select name="duration" id="duration" class="form-control" required>
+                <option value="1">1 Hour (Ksh 200)</option>
+                <option value="2">2 Hours (Ksh 400)</option>
+                <option value="3">3 Hours (Ksh 600)</option>
+                <option value="4">4 Hours (Ksh 800)</option>
+                <option value="5">5 Hours (Ksh 1000)</option>
+                <option value="6">6 Hours (Ksh 1200)</option>
+                <!-- Add more options as needed -->
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Reserve</button>
+    </form>
 </div>
+
+<script>
+    // JavaScript to set the min attribute of the datetime-local input
+    document.addEventListener('DOMContentLoaded', function() {
+        var now = new Date();
+        var year = now.getFullYear();
+        var month = ('0' + (now.getMonth() + 1)).slice(-2);
+        var day = ('0' + now.getDate()).slice(-2);
+        var hours = ('0' + now.getHours()).slice(-2);
+        var minutes = ('0' + now.getMinutes()).slice(-2);
+        var currentDateTime = year + '-' + month + '-' + day + 'T' + hours + ':' + minutes;
+
+        document.getElementById('start_time').setAttribute('min', currentDateTime);
+    });
+</script>
 {% endblock %}
