@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block title %}Leaderboard{% endblock %}
+
+{% block content %}
+<style>
+    td, th{
+        color: aliceblue;
+    }
+</style>
+<div class="container">
+    <h1>Leaderboard</h1>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th scope="col">Rank</th>
+                <th scope="col">User</th>
+                <th scope="col">Game</th>
+                <th scope="col">Score</th>
+                <th scope="col">Achievements</th>
+                <th scope="col">Game Image</th> <!-- New column for game image -->
+            </tr>
+        </thead>
+        <tbody>
+            {% for score in scores %}
+            <tr>
+                <th scope="row">{{ forloop.counter }}</th>
+                <td>{{ score.user.username }}</td>
+                <td>{{ score.game.title }}</td>
+                <td>{{ score.score }}</td>
+                <td><a href="{% url 'achievement' score.game.id %}" class="btn btn-info">View Achievements</a></td>
+                <td>
+                    {% if score.game.image %}
+                    <img src="{{ score.game.image.url }}" alt="{{ score.game.title }}" class="img-thumbnail" style="max-width: 100px; max-height: 100px;">
+                    {% else %}
+                    <p>No Image Available</p>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

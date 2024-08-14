@@ -12,3 +12,56 @@ class Game(models.Model):
 
     def __str__(self):
         return self.title
+    
+
+
+class GamingStation(models.Model):
+    name = models.CharField(max_length=255)
+    description = models.TextField()
+
+class Reservation(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    station = models.ForeignKey(GamingStation, on_delete=models.CASCADE)
+    start_time = models.DateTimeField()
+    end_time = models.DateTimeField()
+
+    def __str__(self):
+        return f"{self.user.username} - {self.station.name} ({self.start_time} to {self.end_time})"
+
+
+class Achievement(models.Model):
+    name = models.CharField(max_length=255)
+    description = models.TextField()
+    game = models.ForeignKey(Game, on_delete=models.CASCADE, null=True)
+
+    def __str__(self):
+        return self.name
+
+class GamerScore(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    game = models.ForeignKey(Game, on_delete=models.CASCADE)
+    score = models.IntegerField()
+    achievements = models.ManyToManyField(Achievement, blank=True)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.game.title}: {self.score}"
+
+
+
+class ChatRoom(models.Model):
+    name = models.CharField(max_length=255)
+    description = models.TextField()
+
+    def __str__(self):
+        return self.name
+
+class Message(models.Model):
+    room = models.ForeignKey(ChatRoom, on_delete=models.CASCADE, related_name='messages')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    content = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username}: {self.content[:20]}"
+
+

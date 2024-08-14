@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+<div class="container">
+{% block title %}
+    Gaming Shop Location
+{% endblock %}
+
+{% block content %}
+<style>
+    h1{
+        text-align: center;
+    }
+</style>
+    <h1>Our Gaming Shop Location</h1>
+    <div id="map" style="height: 400px; width: 100%;"></div>
+
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap" async defer></script>
+    <script>
+        function initMap() {
+            // The location of the gaming shop (example coordinates)
+            var shopLocation = {lat: -34.397, lng: 150.644};
+            
+            // The map, centered at the shop location
+            var map = new google.maps.Map(
+                document.getElementById('map'), {zoom: 15, center: shopLocation});
+            
+            // The marker, positioned at the shop location
+            var marker = new google.maps.Marker({position: shopLocation, map: map});
+        }
+    </script>
+</div>
+{% endblock %}

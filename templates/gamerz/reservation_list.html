@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+    <h1>Your Reservations</h1>
+    <ul>
+        {% for reservation in reservations %}
+            <li>{{ reservation.station.name }} ({{ reservation.start_time }} to {{ reservation.end_time }})</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

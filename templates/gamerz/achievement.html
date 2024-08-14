@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ game.title }} Achievements{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Achievements for {{ game.title }}</h1>
+    {% if achievements %}
+    <ul class="list-group">
+        {% for achievement in achievements %}
+        <li class="list-group-item">
+            <h5>{{ achievement.name }}</h5>
+            <p>{{ achievement.description }}</p>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p>No achievements found for this game.</p>
+    {% endif %}
+</div>
+{% endblock %}
