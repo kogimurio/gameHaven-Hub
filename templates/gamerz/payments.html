@@ -37,7 +37,7 @@
                     <img src="{% static 'images/stripe.png' %}" alt="Stripe" class="img-fluid mb-3" style="height: 50px;">
                     <h5 class="card-title">Pay with Stripe</h5>
                     <p class="card-text">Pay securely using your credit or debit card.</p>
-                    <a href="#" class="btn btn-dark btn-block">Pay with Stripe</a>
+                    <a href="{% url 'stripe' reservation.id %}" class="btn btn-dark btn-block">Pay with Stripe</a>
                 </div>
             </div>
         </div>

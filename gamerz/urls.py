@@ -24,4 +24,9 @@ urlpatterns = [
     path('payments/<int:reservation_id>', views.payments_view, name='payments'),
     path('mpesa/<int:reservation_id>/', views.mpesa_view, name='mpesa'),
     path('paypal/<int:reservation_id>/', views.paypal_view, name='paypal'),
+    path('paymentsuccess/', views.payment_success, name='payment_success'),
+    path('stripe/<int:reservation_id>/', views.stripe_view, name='stripe'),
+    path('create-checkout-session/<int:reservation_id>/', views.create_checkout_session, name='create_checkout_session'),
+    path('reservation-success/', views.reservation_success, name='reservation_success'),
+    path('reservation-cancel/', views.reservation_cancel, name='reservation_cancel'),
 ]

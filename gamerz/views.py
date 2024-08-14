@@ -7,8 +7,10 @@ from django.utils import timezone
 from datetime import timedelta, datetime
 from django.core.exceptions import ValidationError
 from.credentials import *
-from django.http import HttpResponse
+from django.http import JsonResponse
 from django.contrib import messages
+import stripe
+from django.urls import reverse
 
 def gamerz_view(request):
     return render(request, 'gamerz/gamer.html')
@@ -213,5 +215,76 @@ def paypal_view(request, reservation_id):
         return redirect('home')
 
     return render(request, 'gamerz/paypal.html', {'reservation_data': reservation_data})
+
+
+
+def payment_success(request):
+    if request.method == 'POST':
+        # Handle any necessary logic here
+        messages.success(request, "Payment completed successfully!")
+        return JsonResponse({'status': 'ok'})
+    return JsonResponse({'status': 'error'}, status=400)
+
+
+
+def stripe_view(request, reservation_id):
+    reservation = get_object_or_404(Reservation, id=reservation_id, user=request.user)
+
+    # Calculate the total hours and cost for the reservation
+    total_hours = (reservation.end_time - reservation.start_time).total_seconds() / 3600
+    total_cost = total_hours * 200  # Ksh 200 per hour
+
+    reservation_data = {
+        'station_name': reservation.station.name,
+        'start_time': reservation.start_time,
+        'end_time': reservation.end_time,
+        'total_hours': total_hours,
+        'total_cost': total_cost,
+        'reservation': reservation,  # Pass the reservation object
+        'stripe_public_key': settings.STRIPE_PUBLIC_KEY
+    }
+
+    return render(request, 'gamerz/stripe.html', {'reservation_data': reservation_data})
+
+
+stripe.api_key = settings.STRIPE_SECRET_KEY
+
+def create_checkout_session(request, reservation_id):
+    reservation = get_object_or_404(Reservation, id=reservation_id, user=request.user)
+    
+    total_hours = (reservation.end_time - reservation.start_time).total_seconds() / 3600
+    total_cost = int(total_hours * 200)  # Convert to integer (Ksh 200 per hour)
+    
+    session = stripe.checkout.Session.create(
+        payment_method_types=['card'],
+        line_items=[{
+            'price_data': {
+                'currency': 'usd',  # Stripe expects currency in lowercase
+                'product_data': {
+                    'name': f'Reservation for {reservation.station.name}',
+                },
+                'unit_amount': total_cost * 100,  # Stripe expects amount in cents
+            },
+            'quantity': 1,
+        }],
+        mode='payment',
+        success_url=request.build_absolute_uri(reverse('reservation_success')),
+        cancel_url=request.build_absolute_uri(reverse('reservation_cancel')),
+    )
+
+    return JsonResponse({
+        'id': session.id
+    })
+
+def reservation_success(request):
+    messages.success(request, "Payment completed successfully!")
+    return render(request, 'gamerz/reservation_success.html')
+
+def reservation_cancel(request):
+    messages.error(request, "Payment was canceled.")
+    return render(request, 'gamerz/reservation_cancel.html')
+
+
+
 
 

@@ -54,7 +54,7 @@
     
     <form method="POST">
         {% csrf_token %}
-        <h5>Paying for {{ reservation_data.station_name }} station for {{ reservation_data.total_hours }} hour(s)</h5>
+        <h5>Pay Ksh {{ reservation_data.total_cost|floatformat:0 }} for {{ reservation_data.station_name }} for {{ reservation_data.total_hours }} hour(s)</h5>
         <div class="form-group">
             <label for="id_mpesa">Mpesa Phone Number</label>
             <input type="text" name="phone" class="form-control" id="id_mpesa" required placeholder="Enter phone number (e.g., 2547...)">
