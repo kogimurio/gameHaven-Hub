@@ -29,4 +29,9 @@ urlpatterns = [
     path('create-checkout-session/<int:reservation_id>/', views.create_checkout_session, name='create_checkout_session'),
     path('reservation-success/', views.reservation_success, name='reservation_success'),
     path('reservation-cancel/', views.reservation_cancel, name='reservation_cancel'),
+    path('events/', views.my_events, name='events'),
+    path('eventlist/', views.event_list, name='event_list'),
+    path('events/register/<int:event_id>/', views.register_event, name='register_event'),
+    path('calendar/', views.event_calendar, name='event_calendar'),
+    path('events/<int:event_id>/', views.event_detail, name='event_detail'),
 ]

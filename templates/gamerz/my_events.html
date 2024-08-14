@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block title %}My Events{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="text-center mb-4">
+        <h1 class="display-4">My Registered Events</h1>
+        <p class="lead">Keep track of the gaming events you're participating in.</p>
+    </div>
+    <div class="row">
+        {% for registration in registrations %}
+            <div class="col-md-6 mb-4">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h3 class="card-title text-muted">{{ registration.event.name }}</h3>
+                        <p class="card-text text-muted">Status: <span class="badge badge-info">{{ registration.status }}</span></p>
+                        <p class="text-muted">Registered on: {{ registration.registration_date|date:"F j, Y" }}</p>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

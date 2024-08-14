@@ -249,11 +249,14 @@ def stripe_view(request, reservation_id):
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
+
 def create_checkout_session(request, reservation_id):
     reservation = get_object_or_404(Reservation, id=reservation_id, user=request.user)
     
     total_hours = (reservation.end_time - reservation.start_time).total_seconds() / 3600
     total_cost = int(total_hours * 200)  # Convert to integer (Ksh 200 per hour)
+    
+    print("Creating Stripe Checkout Session...")
     
     session = stripe.checkout.Session.create(
         payment_method_types=['card'],
@@ -272,9 +275,12 @@ def create_checkout_session(request, reservation_id):
         cancel_url=request.build_absolute_uri(reverse('reservation_cancel')),
     )
 
+    print("Stripe Checkout Session created:", session.id)
+    
     return JsonResponse({
         'id': session.id
     })
+
 
 def reservation_success(request):
     messages.success(request, "Payment completed successfully!")
@@ -285,6 +291,39 @@ def reservation_cancel(request):
     return render(request, 'gamerz/reservation_cancel.html')
 
 
+def event_list(request):
+    events = Event.objects.filter(status='Scheduled').order_by('start_date')
+    return render(request, 'gamerz/event_list.html', {'events': events})
+
+@login_required
+def register_event(request, event_id):
+    event = get_object_or_404(Event, id=event_id)
+    if Registration.objects.filter(event=event, user=request.user).exists():
+        # User already registered
+        return redirect('event_list')
+    
+    if event.max_participants and Registration.objects.filter(event=event).count() >= event.max_participants:
+        # Event is full
+        return redirect('event_list')
+
+    registration = Registration.objects.create(event=event, user=request.user, status='Registered')
+    return redirect('event_list')
+
+@login_required
+def my_events(request):
+    registrations = Registration.objects.filter(user=request.user)
+    return render(request, 'gamerz/my_events.html', {'registrations': registrations})
+
+
+
+def event_calendar(request):
+    events = Event.objects.filter(status='Scheduled')
+    return render(request, 'gamerz/event_calendar.html', {'events': events})
+
+
+def event_detail(request, event_id):
+    event = get_object_or_404(Event, id=event_id)
+    return render(request, 'events/event_detail.html', {'event': event})
 
 
 

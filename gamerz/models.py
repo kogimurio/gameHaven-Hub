@@ -69,3 +69,26 @@ class Message(models.Model):
         return f"{self.user.username}: {self.content[:20]}"
 
 
+
+class Event(models.Model):
+    name = models.CharField(max_length=255)
+    description = models.TextField()
+    start_date = models.DateTimeField()
+    end_date = models.DateTimeField()
+    location = models.CharField(max_length=255)
+    organizer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    max_participants = models.PositiveIntegerField()
+    status = models.CharField(max_length=20, choices=[('Scheduled', 'Scheduled'), ('Ongoing', 'Ongoing'), ('Completed', 'Completed'), ('Canceled', 'Canceled')])
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+class Registration(models.Model):
+    event = models.ForeignKey(Event, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    registration_date = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(max_length=20, choices=[('Registered', 'Registered'), ('Attending', 'Attending'), ('Withdrawn', 'Withdrawn')])
+
+
+
+
+

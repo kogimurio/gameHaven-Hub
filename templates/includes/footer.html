@@ -5,7 +5,7 @@
             <!-- Company Info -->
             <div class="col-md-3 col-lg-3 col-xl-3 mx-auto mt-3">
                 <h5 class="text-uppercase mb-4 font-weight-bold">GameHaven Hub</h5>
-                <p>Your ultimate destination for an immersive gaming experience. Join us for the best in gaming, events, and community.</p>
+                <p>Your ultimate destination for an immersive gaming experience. Join us for the best in gaming, events, tournaments, and community.</p>
             </div>
 
             <!-- Quick Links -->
@@ -18,7 +18,10 @@
                     <a href="{% url 'game_list' %}" class="text-light" style="text-decoration: none;">Games</a>
                 </p>
                 <p>
-                    <a href="#" class="text-light" style="text-decoration: none;">Events</a>
+                    <a href="{% url 'event_list' %}" class="text-light" style="text-decoration: none;">Events</a>
+                </p>
+                <p>
+                    <a href="{% url 'events' %}" class="text-light" style="text-decoration: none;">My Events</a>
                 </p>
                 <p>
                     <a href="#" class="text-light" style="text-decoration: none;">Membership</a>
