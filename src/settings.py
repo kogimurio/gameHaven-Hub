@@ -26,7 +26,11 @@ SECRET_KEY = 'django-insecure-n9^)*-s#otyt0kr)+vrv_=*8p#*#xfj&lob*$x@phn3^*smgh^
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+        'localhost',
+        '127.0.0.1',
+        '4559-41-212-14-223.ngrok-free.app',
+    ]
 
 
 # Application definition
@@ -147,3 +151,5 @@ PASSWORD_RESET_TIMEOUT = 14400
 STRIPE_PUBLIC_KEY = 'pk_test_51Ok0jcFw6q40j6RFunl8jGfMLFSWlnLilwI2pVb0Z9RrvS7diTiLXARuDAJyyHMwDQVkSsfg7txqU1780oeHYEjN00jAhycfPY'
 STRIPE_SECRET_KEY = 'sk_test_51Ok0jcFw6q40j6RF1kyolWeXIGjRHIjCyPnk3LZWkfga8jGyZ61DVtmblWD73G19vKUNMfHOjt4tRKQS897IUBY000rsQITM5S'
 
+
+OPENWEATHERMAP_API_KEY = 'dcdde97a40e173829aaeabf6c422e001'

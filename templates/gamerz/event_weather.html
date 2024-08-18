@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block title %} Weather in {{ city_name }} {% endblock %}
+{% block content %}
+<div class="container mt-5">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h2 class="text-center">Weather in {{ city_name }}</h2>
+        </div>
+        <div class="card-body">
+            {% if weather_data %}
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <p class="h5 text-muted"><strong>Temperature:</strong> {{ weather_data.main.temp }}°C</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="h5 text-muted"><strong>Weather:</strong> {{ weather_data.weather.0.description }}</p>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <p class="h5 text-muted"><strong>Humidity:</strong> {{ weather_data.main.humidity }}%</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="h5 text-muted"><strong>Wind Speed:</strong> {{ weather_data.wind.speed }} m/s</p>
+                    </div>
+                </div>
+            {% else %}
+                <div class="alert alert-warning text-center">
+                    Weather data could not be retrieved at this time.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

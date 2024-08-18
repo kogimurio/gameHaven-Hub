@@ -1,6 +1,5 @@
 from django import forms
-from .models import Game
-from .models import Event
+from .models import *
 
 
 class GameForm(forms.ModelForm):
@@ -23,6 +22,13 @@ class EventForm(forms.ModelForm):
         model = Event
         fields = ['name', 'description', 'start_date', 'end_date', 'location', 'max_participants']
 
+
+
+
+class MembershipForm(forms.ModelForm):
+    class Meta:
+        model = Membership
+        fields = ['tier']
 
 
 

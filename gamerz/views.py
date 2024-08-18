@@ -1,16 +1,17 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import *
 from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseForbidden
 from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
 from datetime import timedelta, datetime
 from django.core.exceptions import ValidationError
 from.credentials import *
-from django.http import JsonResponse
 from django.contrib import messages
 import stripe
 from django.urls import reverse
+from.decorators import *
+from .utilis import *
 
 def gamerz_view(request):
     return render(request, 'gamerz/gamer.html')
@@ -305,9 +306,18 @@ def register_event(request, event_id):
     if event.max_participants and Registration.objects.filter(event=event).count() >= event.max_participants:
         # Event is full
         return redirect('event_list')
+    
+    # Check if the event has a registration fee
+    if event.registration_fee > 0:
+        # Redirect to payment gateway (e.g., Stripe, PayPal) for processing
+        return redirect('payment_tournament', event_id=event.id)
 
     registration = Registration.objects.create(event=event, user=request.user, status='Registered')
     return redirect('event_list')
+
+def payment_tournament(request, event_id):
+    tournament = get_object_or_404(Event, id=event_id)
+    return render(request, 'gamerz/tournamentpay.html', {'tournament': tournament})
 
 @login_required
 def my_events(request):
@@ -324,6 +334,209 @@ def event_calendar(request):
 def event_detail(request, event_id):
     event = get_object_or_404(Event, id=event_id)
     return render(request, 'events/event_detail.html', {'event': event})
+
+
+def tournament_mpesa(request, event_id):
+    event = get_object_or_404(Event, id=event_id)
+    total_cost = float(event.registration_fee)
+    registration, created = Registration.objects.get_or_create(event=event, user=request.user)
+
+    if not created:  # If registration already exists
+        if registration.payment_status == 'Pending':
+            messages.warning(request, "Payment already initiated. Please complete the payment via Mpesa.")
+            return redirect('event_list')
+        elif registration.payment_status == 'Paid':
+            messages.info(request, "You have already paid for this tournament.")
+            return redirect('event_list')
+
+    if request.method == 'POST':
+        phone = request.POST['phone']
+        amount = total_cost
+        access_token = MpesaAccessToken.validated_mpesa_access_token
+        api_url = "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest"
+        headers = {"Authorization": "Bearer %s" % access_token}
+        payment_request = {
+            "BusinessShortCode": LipanaMpesaPassword.Business_short_code,
+            "Password": LipanaMpesaPassword.decode_password,
+            "Timestamp": LipanaMpesaPassword.lipa_time,
+            "TransactionType": "CustomerPayBillOnline",
+            "Amount": amount,
+            "PartyA": phone,
+            "PartyB": LipanaMpesaPassword.Business_short_code,
+            "PhoneNumber": phone,
+            "CallBackURL": "https://sandbox.safaricom.co.ke/mpesa/",
+            "AccountReference": "PYMENT001",
+            "TransactionDesc": "Tournament Fee Registration"
+        }
+
+        response = requests.post(api_url, json=payment_request, headers=headers)
+        
+        # Print the response for debugging
+        print("Response Status Code:", response.status_code)
+        print("Response Text:", response.text)
+
+        if response.status_code == 200:
+            # Payment initiated successfully
+            messages.success(request, "Payment initiated successfully. Please complete your payment via Mpesa.")
+            return redirect('reservation_list')
+        else:
+            # Handle payment failure or errors here
+            messages.error(request, f"Payment initiation failed. Error: {response.text}")
+            return redirect('home')
+
+    return render(request, 'gamerz/tournament_mpesa.html', {'event': event})
+
+
+
+def tournament_paypal(request, event_id):
+    event = get_object_or_404(Event, id=event_id)
+    return render(request, 'gamerz/tournament_paypal.html', {'event': event})
+
+
+def select_membership(request):
+    plans = MembershipPlan.objects.all()
+    return render(request, 'gamerz/select_membership.html', {'plans': plans})
+
+
+def calculate_end_date(duration_days):
+    return timezone.now() + timedelta(days=duration_days)
+
+
+@login_required
+def subscribe(request, plan_id):
+    plan = get_object_or_404(MembershipPlan, id=plan_id)
+    if request.method == 'POST':
+        # Here you would handle the payment process
+        # After successful payment:
+        Membership.objects.update_or_create(
+            user=request.user,
+            defaults={'tier': plan.name, 'end_date': calculate_end_date(plan.duration_days), 'is_active': True}
+        )
+        return redirect('membership_payment_page', plan_id=plan.id)
+    return render(request, 'gamerz/subscribe.html', {'plan': plan})
+
+
+def payment_membership(request, plan_id):
+    plan = get_object_or_404(MembershipPlan, id=plan_id)
+    return render(request, 'gamerz/membershippay.html', {'plan': plan})
+
+def membershipmpesa(request, plan_id):
+    plan = get_object_or_404(MembershipPlan, id=plan_id)
+    print(plan)  # Debugging
+
+    if request.method == 'POST':
+        phone = request.POST['phone']
+        amount = float(plan.price)  # Correctly access the plan's price
+        access_token = MpesaAccessToken.validated_mpesa_access_token
+        api_url = "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest"
+        headers = {"Authorization": "Bearer %s" % access_token}
+        payment_request = {
+            "BusinessShortCode": LipanaMpesaPassword.Business_short_code,
+            "Password": LipanaMpesaPassword.decode_password,
+            "Timestamp": LipanaMpesaPassword.lipa_time,
+            "TransactionType": "CustomerPayBillOnline",
+            "Amount": amount,
+            "PartyA": phone,
+            "PartyB": LipanaMpesaPassword.Business_short_code,
+            "PhoneNumber": phone,
+            "CallBackURL": "https://sandbox.safaricom.co.ke/mpesa/",
+            "AccountReference": "PAYMENT001",
+            "TransactionDesc": "Membership Fee"
+        }
+
+        response = requests.post(api_url, json=payment_request, headers=headers)
+        
+        # Debugging response
+        print("Response Status Code:", response.status_code)
+        print("Response Text:", response.text)
+
+        if response.status_code == 200:
+            messages.success(request, "Payment initiated successfully. Please complete your payment via Mpesa.")
+            return redirect('membership_success')  # Change to an appropriate redirect
+        else:
+            messages.error(request, f"Payment initiation failed. Error: {response.text}")
+            return redirect('home')  # Change to an appropriate redirect
+
+    return render(request, 'gamerz/membershipmpesa.html', {'plan': plan})
+
+
+def membershippaypal(request, plan_id):
+    plan = get_object_or_404(MembershipPlan, id=plan_id)
+    return render(request, 'gamerz/membershippaypal.html', {'plan': plan})
+
+
+@login_required
+def manage_membership(request):
+    membership = Membership.objects.get(user=request.user)
+    return render(request, 'gamerz/manage_membership.html', {'membership': membership})
+
+
+def membership_success(request):
+    return render(request, 'gamerz/membership_success.html')
+
+
+def select_membership(request):
+    if request.method == 'POST':
+        plan_id = request.POST.get('plan_id')
+        plan = get_object_or_404(MembershipPlan, id=plan_id)
+        membership, created = Membership.objects.get_or_create(user=request.user)
+        
+        if membership.is_active:
+            # Update membership tier and extend end date based on the new plan
+            membership.tier = plan.name
+            membership.end_date = timezone.now() + timedelta(days=plan.duration_days)
+            membership.save()
+            messages.success(request, "Your membership has been upgraded.")
+        else:
+            # Create a new membership
+            membership = Membership.objects.create(
+                user=request.user,
+                tier=plan.name,
+                start_date=timezone.now(),
+                end_date=timezone.now() + timedelta(days=plan.duration_days),
+                is_active=True
+            )
+            messages.success(request, "You have successfully subscribed to the new membership plan.")
+        
+        # Pass the selected plan's name to the success page
+        return render(request, 'gamerz/subscription_success.html', {'plan_name': plan.name})
+
+    plans = MembershipPlan.objects.all()
+    return render(request, 'gamerz/select_membership.html', {'plans': plans})
+
+def cancel_membership(request):
+    membership = request.user.membership
+    if membership:
+        membership.is_active = False  # Mark the membership as inactive
+        membership.save()
+        messages.success(request, "Your membership has been canceled.")
+    else:
+        messages.error(request, "No active membership found.")
+    
+    return redirect('managemembership')
+
+
+@membership_required('Basic')
+def exclusive_content(request):
+    # Your view logic here
+    return render(request, 'exclusive/basic.html')
+
+@membership_required('Premium')
+def exclusive_content(request):
+    # Your view logic here
+    return render(request, 'exclusive/premium.html')
+
+@membership_required('Elite')
+def exclusive_content(request):
+    # Your view logic here
+    return render(request, 'exclusive/elite.html')
+
+
+def get_weather_data(nairobi):
+    api_key = 'dcdde97a40e173829aaeabf6c422e001'
+    api_url = f'http://api.openweathermap.org/data/2.5/weather?q={nairobi}&units=metric&appid={api_key}'
+    response = requests.get(api_url)
+    return response.json() if response.status_code == 200 else None
 
 
 

@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block title %} Select Membership Plan {% endblock %}
+
+{% block content %}
+<style>
+    h2{
+        text-align: center;
+    }
+    .card-title {
+        color: #000; /* Ensure the card title is visible */
+    }
+    .card-subtitle, .card-text {
+        color: #333; /* Darker color for better visibility */
+    }
+    .btn-primary {
+        background-color: #007bff; /* Ensure button color is distinct */
+        border-color: #007bff;
+    }
+</style>
+<div class="container mt-5">
+    <h2 class="mb-4">Select Your Membership Plan</h2>
+    <div class="row">
+        {% for plan in plans %}
+            <div class="col-md-4 mb-4">
+                <div class="card shadow-sm border-light">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ plan.name }}</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">Price: Ksh {{ plan.price }}</h6>
+                        <p class="card-text">Duration: {{ plan.duration_days }} days</p>
+                        <p class="card-text">Benefits: {{ plan.benefits }}</p>
+                        <a href="{% url 'subscribe' plan.id %}" class="btn btn-primary">Subscribe</a>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

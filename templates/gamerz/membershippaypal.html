@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %} Payments{% endblock %}
+{% block content %}
+<style>
+     body {
+        background-color: #f8f9fa;
+    }
+    h5{
+        color: #343a40;
+    }
+    .mpesa-container {
+        max-width: 500px;
+        margin: 50px auto;
+        background-color: #fff;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
+    }
+    .mpesa-container h4 {
+        text-align: center;
+        margin-bottom: 20px;
+        font-weight: bold;
+        color: #343a40;
+    }
+    .mpesa-container .form-group label {
+        font-weight: 500;
+        color: #343a40;
+    }
+    .mpesa-container .btn-mpesa {
+        width: 100%;
+        background-color: #ff5722;
+        color: #fff;
+        border-radius: 50px;
+    }
+    .mpesa-container .btn-mpesa:hover {
+        background-color: #e64a19;
+    }
+    .mpesa-container .form-text {
+        text-align: center;
+        color: #6c757d;
+    }
+    .mpesa-container .form-text a {
+        color: #ff5722;
+        text-decoration: none;
+    }
+    .mpesa-container .form-text a:hover {
+        text-decoration: underline;
+    }
+</style>
+
+<div class="mpesa-container">
+    <h4>PayPal Payment</h4>
+    
+    <form method="POST">
+        {% csrf_token %}
+        <h5>Pay Ksh {{ plan.price|floatformat:0 }} for {{ plan.name }}</h5>
+        <div class="form-group">
+            <div id="paypal-button-container"></div>
+        </div>
+        
+    </form>
+</div>
+<script src="https://www.paypal.com/sdk/js?client-id=AZwGaL2LqVXI9fHB0YgLQtnjwEHNP0TI1nX1rzghY8goXR-a-fgRydYHrC5wj-iObrwolXre8AQsIxBN&currency=USD"></script>
+<script>
+    console.log("PayPal SDK script loaded");
+    paypal.Buttons({
+        createOrder: function(data, actions) {
+            return actions.order.create({
+                purchase_units: [{
+                    amount: {
+                        value: '{{ plan.price }}'
+                    }
+                }]
+            });
+        },
+        onApprove: function(data, actions) {
+            return actions.order.capture().then(function(details) {
+                // Make an AJAX request to your Django view to set the success message
+                fetch("{% url 'payment_success' %}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}',
+                    },
+                    body: JSON.stringify({ 
+                        orderID: data.orderID 
+                    })
+                })
+                .then(response => {
+                    if (response.ok) {
+                        window.location.href = "{% url 'membership_success' %}";
+                    } else {
+                        console.error('Error in payment success handling.');
+                    }
+                });
+            });
+        }
+    }).render('#paypal-button-container');
+</script>
+
+{% endblock %}
+
+

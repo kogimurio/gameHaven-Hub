@@ -2,32 +2,36 @@
 
 {% block title %}Game List{% endblock %}
 
+{% block extra_styles %}
+<style>
+    /* style.css */
+    .game-list-title {
+        color: #333;
+    }
+    
+    .card-title {
+        color: #007bff;
+    }
+    
+    .card-text {
+        color: #555;
+    }
+    
+    .card {
+        border-color: #ccc;
+    }
+    
+    .card-img-top {
+        width: 100%;
+        max-height: 300px; /* Adjust height as needed */
+        object-fit: cover; /* Ensures the image covers the area while maintaining aspect ratio */
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="container">
-    <style>
-        /* style.css */
-        .game-list-title {
-            color: #333;
-        }
-        
-        .card-title {
-            color: #007bff;
-        }
-        
-        .card-text {
-            color: #555;
-        }
-        
-        .card {
-            border-color: #ccc;
-        }
-        
-        .card-img-top {
-            width: 100%;
-            max-height: 300px; /* Adjust height as needed */
-            object-fit: cover; /* Ensures the image covers the area while maintaining aspect ratio */
-        }
-    </style>
+    
     <h1>Game List</h1>
     <div class="row">
         {% for game in games %}

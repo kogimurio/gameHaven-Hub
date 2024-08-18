@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %} Payments{% endblock %}
+{% load static %}
+{% block content %}
+<div class="container mt-5">
+    <h1 class="text-center mb-4">Complete Your Membership Payment</h1>
+    <p class="text-center">Please choose your preferred payment method to register your membership.</p>
+    <div class="row justify-content-center">
+        <!-- Mpesa Payment -->
+        <div class="col-md-3">
+            <div class="card mb-4">
+                <div class="card-body text-center">
+                    <img src="{% static 'images/mpesa.png' %}" alt="Mpesa" class="img-fluid mb-3" style="height: 50px;">
+                    <h5 class="card-title">Pay with Mpesa</h5>
+                    <p class="card-text">Instant payment via Mpesa mobile money service.</p>
+                    <a href="{% url 'membershipmpesa' plan.id %}" class="btn btn-success btn-block">Pay with Mpesa</a>
+                    
+                </div>
+            </div>
+        </div>
+
+        <!-- Paypal Payment -->
+        <div class="col-md-3">
+            <div class="card mb-4">
+                <div class="card-body text-center">
+                    <img src="{% static 'images/paypal.png' %}" alt="Paypal" class="img-fluid mb-3" style="height: 50px;">
+                    <h5 class="card-title">Pay with Paypal</h5>
+                    <p class="card-text">Secure payment via your PayPal account.</p>
+                    <a href="{% url 'membershippaypal' plan.id %}" class="btn btn-primary btn-block">Pay with PayPal</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stripe Payment -->
+        <div class="col-md-3">
+            <div class="card mb-4">
+                <div class="card-body text-center">
+                    <img src="{% static 'images/stripe.png' %}" alt="Stripe" class="img-fluid mb-3" style="height: 50px;">
+                    <h5 class="card-title">Pay with Stripe</h5>
+                    <p class="card-text">Pay securely using your credit or debit card.</p>
+                    <a href="#" class="btn btn-dark btn-block">Pay with Stripe</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -78,7 +78,9 @@ class Event(models.Model):
     location = models.CharField(max_length=255)
     organizer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     max_participants = models.PositiveIntegerField()
+    prize = models.DecimalField(max_digits=8, decimal_places=2, null=True, default=0.00)
     status = models.CharField(max_length=20, choices=[('Scheduled', 'Scheduled'), ('Ongoing', 'Ongoing'), ('Completed', 'Completed'), ('Canceled', 'Canceled')])
+    registration_fee = models.DecimalField(max_digits=6, decimal_places=2, null=True, default=0.00)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -87,7 +89,33 @@ class Registration(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     registration_date = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=20, choices=[('Registered', 'Registered'), ('Attending', 'Attending'), ('Withdrawn', 'Withdrawn')])
+    payment_status = models.CharField(max_length=20, choices=[('Pending', 'Pending'), ('Paid', 'Paid')], default='Pending')
 
+
+class Membership(models.Model):
+    TIER_CHOICES = [
+        ('Basic', 'Basic'),
+        ('Premium', 'Premium'),
+        ('Elite', 'Elite'),
+    ]
+
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    tier = models.CharField(max_length=10, choices=TIER_CHOICES, default='Basic')
+    start_date = models.DateTimeField(auto_now_add=True)
+    end_date = models.DateTimeField(null=True, blank=True)
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.tier}"
+
+class MembershipPlan(models.Model):
+    name = models.CharField(max_length=50)
+    price = models.DecimalField(max_digits=6, decimal_places=2)
+    duration_days = models.IntegerField()
+    benefits = models.TextField()
+
+    def __str__(self):
+        return self.name
 
 
 

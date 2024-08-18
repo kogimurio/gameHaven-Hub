@@ -12,7 +12,14 @@
     <!-- FullCalendar CSS -->
     <link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.10.2/main.min.css' rel='stylesheet' />
 
+    <!-- FullCalendar and Tippy.js styles and scripts -->
+    <link rel="stylesheet" href="https://unpkg.com/tippy.js@6/dist/tippy.css" />
+    <link href='https://unpkg.com/@fullcalendar/core/main.css' rel='stylesheet' />
+    <link href='https://unpkg.com/@fullcalendar/daygrid/main.css' rel='stylesheet' />
+
+
     {% load static %}
+    {% block extra_styles %}{% endblock %}
   </head>
   <body>
     {% include 'includes/header.html' %}
@@ -28,6 +35,11 @@
     
     <!-- FullCalendar JS -->
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.10.2/main.min.js'></script>
+
+    <!-- FullCalendar and Tippy.js scripts -->
+    <script src='https://unpkg.com/@fullcalendar/core/main.js'></script>
+    <script src='https://unpkg.com/@fullcalendar/daygrid/main.js'></script>
+    <script src="https://unpkg.com/tippy.js@6"></script>
     
     <!-- Additional JavaScript -->
     {% block extra_js %}

@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block title %}Manage Your Plan{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card p-4 shadow-sm">
+        <h2 class="card-title" style="color: #343a40;">Your Membership</h2>
+        <p class="card-text" style="color: #6c757d;"><strong>Tier:</strong> {{ membership.tier }}</p>
+        <p class="card-text" style="color: #6c757d;"><strong>Expires on:</strong> {{ membership.end_date }}</p>
+        
+        {% if membership.is_active %}
+            <form method="POST" action="{% url 'cancelmembership' %}" class="mt-3">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">Cancel Membership</button>
+            </form>
+            <a style="width: 50%; margin: 0 auto;" href="{% url 'selectmembership' %}" class="btn btn-primary mt-3">Upgrade Membership</a>
+        {% else %}
+            <p class="mt-3" style="color: #dc3545;">Your membership has been canceled.</p>
+            <a style="width: 50%; margin: 0 auto;" href="{% url 'selectmembership' %}" class="btn btn-primary mt-3">Select Membership</a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

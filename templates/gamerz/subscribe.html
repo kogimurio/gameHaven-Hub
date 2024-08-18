@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block title %} {{ plan.name }} Plan {% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card shadow-lg border-light">
+        <div class="card-body">
+            <h2 class="card-title" style="color: #343a40;">Subscribe to {{ plan.name }} Plan</h2>
+            <p class="card-text" style="color: #6c757d; font-size: 1.1rem;">Price: Ksh {{ plan.price }}</p>
+            <p class="card-text" style="color: #6c757d; font-size: 1.1rem;">Benefits:</p>
+            <ul class="list-unstyled" style="color: #495057; font-size: 1rem;">
+                {% for benefit in plan.benefits.splitlines %}
+                    <li style="margin-bottom: 0.5rem;">{{ benefit }}</li>
+                {% endfor %}
+            </ul>
+            <form method="POST">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-success mt-3">Proceed to Payment</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
