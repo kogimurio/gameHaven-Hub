@@ -46,5 +46,5 @@ urlpatterns = [
     path('subscribe/success/', views.membership_success, name='membership_success'),
     path('selectmembership/', views.select_membership, name='selectmembership'),
     path('cancelmembership/', views.cancel_membership, name='cancelmembership'),
-    #path('weather/<str:city_name>/', views.event_weather, name='event_weather'),
+    path('weather/<str:city_name>/', views.event_weather, name='event_weather'),
 ]

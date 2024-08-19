@@ -11,7 +11,8 @@ from django.contrib import messages
 import stripe
 from django.urls import reverse
 from.decorators import *
-from .utilis import *
+#from .utilis import *
+from django.utils.safestring import mark_safe
 
 def gamerz_view(request):
     return render(request, 'gamerz/gamer.html')
@@ -326,14 +327,45 @@ def my_events(request):
 
 
 
+def get_weather_data(nairobi):
+    api_key = 'dcdde97a40e173829aaeabf6c422e001'
+    api_url = f'http://api.openweathermap.org/data/2.5/weather?q={nairobi}&units=metric&appid={api_key}'
+    response = requests.get(api_url)
+    if response.status_code == 200:
+        print(f"Weather API response for {nairobi}: {response.json()}")
+        return response.json()
+    else:
+        print(f"Failed to fetch weather data for {nairobi}: {response.status_code}")
+        return None
+
+
 def event_calendar(request):
     events = Event.objects.filter(status='Scheduled')
-    return render(request, 'gamerz/event_calendar.html', {'events': events})
+
+    event_data = []
+    
+    for event in events:
+        weather_data = get_weather_data(event.city_name) if event.city_name else None
+        event_info = {
+            'title': event.name,
+            'start': event.start_date.isoformat(),
+            'end': event.end_date.isoformat(),
+            'city_name': event.city_name,
+            'weather': weather_data['weather'][0]['description'] if weather_data else 'N/A',
+            'temperature': weather_data['main']['temp'] if weather_data else 'N/A',
+        }
+        print(f"Processed Event Data: {event_info}")
+        event_data.append(event_info)
+
+    event_data_json = mark_safe(json.dumps(event_data))
+    return render(request, 'gamerz/event_calendar.html', {'events': event_data_json})
+
+
 
 
 def event_detail(request, event_id):
     event = get_object_or_404(Event, id=event_id)
-    return render(request, 'events/event_detail.html', {'event': event})
+    return render(request, 'gamerz/event_detail.html', {'event': event})
 
 
 def tournament_mpesa(request, event_id):
@@ -532,11 +564,9 @@ def exclusive_content(request):
     return render(request, 'exclusive/elite.html')
 
 
-def get_weather_data(nairobi):
-    api_key = 'dcdde97a40e173829aaeabf6c422e001'
-    api_url = f'http://api.openweathermap.org/data/2.5/weather?q={nairobi}&units=metric&appid={api_key}'
-    response = requests.get(api_url)
-    return response.json() if response.status_code == 200 else None
+def event_weather(request, city_name):
+    weather_data = get_weather_data(city_name)
+    return render(request, 'gamerz/event_weather.html', {'weather_data': weather_data, 'city_name': city_name})
 
 
 

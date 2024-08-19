@@ -2,7 +2,7 @@ import requests
 from django.conf import settings
 
 
-def get_weather_data(nairobi):
+def get_weather_data_main(nairobi):
     api_key = settings.OPENWEATHERMAP_API_KEY
     base_url = "http://api.openweathermap.org/data/2.5/weather"
     params = {

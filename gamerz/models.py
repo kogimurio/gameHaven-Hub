@@ -81,6 +81,7 @@ class Event(models.Model):
     prize = models.DecimalField(max_digits=8, decimal_places=2, null=True, default=0.00)
     status = models.CharField(max_length=20, choices=[('Scheduled', 'Scheduled'), ('Ongoing', 'Ongoing'), ('Completed', 'Completed'), ('Canceled', 'Canceled')])
     registration_fee = models.DecimalField(max_digits=6, decimal_places=2, null=True, default=0.00)
+    city_name = models.CharField(max_length=255, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

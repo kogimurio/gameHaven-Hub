@@ -1,13 +1,20 @@
 {% extends 'base.html' %}
 
-{% block title %}Event Detail{% endblock %}
+{% block title %}Event Detail - {{ event.name }}{% endblock %}
 
 {% block content %}
-<div class="container">
-    <h1>{{ event.name }}</h1>
-    <p>{{ event.description }}</p>
-    <p>Start Date: {{ event.start_date }}</p>
-    <p>End Date: {{ event.end_date }}</p>
-    <p>Location: {{ event.location }}</p>
+<div class="container mt-5">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h2 class="mb-0">{{ event.name }}</h2>
+        </div>
+        <div class="card-body">
+            <p class="text-muted">{{ event.description }}</p>
+            <hr>
+            <p class="text-muted"><strong>Start Date:</strong> {{ event.start_date|date:"F j, Y, g:i a" }}</p>
+            <p class="text-muted"><strong>End Date:</strong> {{ event.end_date|date:"F j, Y, g:i a" }}</p>
+            <p class="text-muted"><strong>Location:</strong> {{ event.location }}</p>
+        </div>
+    </div>
 </div>
 {% endblock %}
