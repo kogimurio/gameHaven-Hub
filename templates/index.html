@@ -6,95 +6,124 @@
 {% block content %}
 <style>
     body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #121212;
-    color: #f8f9fa;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #121212;
+        color: #f8f9fa;
     }
     .hero-section {
-    background-image: url('hero-bg.jpg');
-    background-size: cover;
-    background-position: center;
-    padding: 100px 0;
-    text-align: center;
-    color: #f8f9fa;
+        background-image: url('{% static 'images/hero-bg.jpg' %}');
+        background-size: cover;
+        background-position: center;
+        padding: 100px 0;
+        text-align: center;
+        color: #f8f9fa;
     }
     .hero-section h1 {
-    font-size: 3.5rem;
-    font-weight: bold;
+        font-size: 3.5rem;
+        font-weight: bold;
     }
     .hero-section p {
-    font-size: 1.3rem;
-    margin-top: 10px;
+        font-size: 1.3rem;
+        margin-top: 10px;
     }
     .btn-hero {
-    background-color: #ff5722;
-    color: #fff;
-    border-radius: 20px;
+        background-color: #ff5722;
+        color: #fff;
+        border-radius: 20px;
     }
     .btn-hero:hover {
-    background-color: #e64a19;
+        background-color: #e64a19;
     }
     .feature-section {
-    padding: 60px 0;
-    background-color: #1f1f1f;
+        padding: 60px 0;
+        background-color: #1f1f1f;
     }
     .feature-section .feature {
-    margin-bottom: 30px;
+        margin-bottom: 30px;
     }
     .feature-section h3 {
-    font-size: 1.75rem;
-    margin-bottom: 15px;
+        font-size: 1.75rem;
+        margin-bottom: 15px;
     }
     .event-section {
-    padding: 60px 0;
-    background-color: #2c2c2c;
+        padding: 60px 0;
+        background-color: #2c2c2c;
     }
     .event-section h2 {
-    font-size: 2.5rem;
-    margin-bottom: 30px;
-    text-align: center;
+        font-size: 2.5rem;
+        margin-bottom: 30px;
+        text-align: center;
     }
     .event-card {
-    background-color: #1f1f1f;
-    border: none;
-    border-radius: 10px;
+        background-color: #1f1f1f;
+        border: none;
+        border-radius: 10px;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
     }
     .event-card img {
-        height: 200px; /* Set the desired height */
-        object-fit: cover; /* Ensure the image covers the area */
+        height: 200px;
+        object-fit: cover;
         border-top-left-radius: 10px;
         border-top-right-radius: 10px;
     }
     .event-card-body {
-    padding: 20px;
+        padding: 20px;
+        flex-grow: 1;
     }
     .event-card-title {
-    font-size: 1.5rem;
-    color: #ff5722;
+        font-size: 1.5rem;
+        color: #ff5722;
     }
     .community-section {
-    padding: 60px 0;
-    text-align: center;
+        padding: 60px 0;
+        text-align: center;
     }
     .community-section h2 {
-    font-size: 2.5rem;
-    margin-bottom: 30px;
+        font-size: 2.5rem;
+        margin-bottom: 30px;
     }
     .community-section p {
-    font-size: 1.2rem;
-    margin-bottom: 20px;
+        font-size: 1.2rem;
+        margin-bottom: 20px;
     }
     .community-section .btn {
-    background-color: #ff5722;
-    color: #fff;
-    border-radius: 20px;
+        background-color: #ff5722;
+        color: #fff;
+        border-radius: 20px;
     }
     .community-section .btn:hover {
-    background-color: #e64a19;
+        background-color: #e64a19;
+    }
+    .news-sidebar {
+        background-color: #1f1f1f;
+        padding: 20px;
+        border-radius: 10px;
+    }
+    .news-sidebar h4 {
+        font-size: 1.5rem;
+        color: #ff5722;
+        margin-bottom: 15px;
+    }
+    .news-sidebar ul {
+        list-style-type: none;
+        padding-left: 0;
+    }
+    .news-sidebar li {
+        margin-bottom: 10px;
+    }
+    .news-sidebar li a {
+        color: #f8f9fa;
+        text-decoration: none;
+    }
+    .news-sidebar li a:hover {
+        text-decoration: underline;
     }
 </style>
-  <!-- Hero Section -->
-  <section class="hero-section">
+
+<!-- Hero Section -->
+<section class="hero-section">
     <div class="container">
         <h1>Welcome {{ request.user.username }} to GameHaven Hub</h1>
         <p>Your Ultimate Gaming Experience Starts Here</p>
@@ -102,64 +131,81 @@
     </div>
 </section>
 
-<!-- Feature Section -->
-<section class="feature-section">
-    <div class="container">
-        <div class="row text-center">
-            <div class="col-md-4 feature">
-                <h3>Top-Tier Games</h3>
-                <p>Explore our extensive library of the latest and greatest games.</p>
-            </div>
-            <div class="col-md-4 feature">
-                <h3>Competitive Tournaments</h3>
-                <p>Join our thrilling tournaments and compete with the best.</p>
-            </div>
-            <div class="col-md-4 feature">
-                <h3>Exclusive Memberships</h3>
-                <p>Enjoy exclusive benefits with our membership packages.</p>
-            </div>
-        </div>
-    </div>
-</section>
+<!-- Main Content with Sidebar -->
+<div class="container mt-5">
+    <div class="row">
+        <!-- Main Content -->
+        <div class="col-md-8">
+            <!-- Feature Section -->
+            <section class="feature-section">
+                <div class="row text-center">
+                    <div class="col-md-4 feature">
+                        <h3>Top-Tier Games</h3>
+                        <p>Explore our extensive library of the latest and greatest games.</p>
+                    </div>
+                    <div class="col-md-4 feature">
+                        <h3>Competitive Tournaments</h3>
+                        <p>Join our thrilling tournaments and compete with the best.</p>
+                    </div>
+                    <div class="col-md-4 feature">
+                        <h3>Exclusive Memberships</h3>
+                        <p>Enjoy exclusive benefits with our membership packages.</p>
+                    </div>
+                </div>
+            </section>
 
-<!-- Event Section -->
-<section class="event-section">
-    <div class="container">
-        <h2>Upcoming Events</h2>
-        <div class="row">
-            <div class="col-md-4">
-                <div class="card event-card">
-                    <img src="{% static 'images/event 1.jpeg' %}" class="card-img-top" alt="Event 1">
-                    <div class="card-body event-card-body">
-                        <h5 class="event-card-title">Summer Gaming Bash</h5>
-                        <p class="card-text">Join us for an epic summer gaming event with prizes and giveaways.</p>
-                        <a href="#" class="btn btn-hero">Learn More</a>
+            <!-- Event Section -->
+            <section class="event-section mt-5">
+                <h2>Upcoming Events</h2>
+                <div class="row">
+                    <div class="col-md-4 mb-4">
+                        <div class="card event-card">
+                            <img src="{% static 'images/event 1.jpeg' %}" class="card-img-top" alt="Event 1">
+                            <div class="card-body event-card-body">
+                                <h5 class="event-card-title">Summer Gaming Bash</h5>
+                                <p class="card-text">Join us for an epic summer gaming event with prizes and giveaways.</p>
+                                <a href="#" class="btn btn-hero">Learn More</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-4">
+                        <div class="card event-card">
+                            <img src="{% static 'images/event 2.jpg' %}" class="card-img-top" alt="Event 2">
+                            <div class="card-body event-card-body">
+                                <h5 class="event-card-title">Pro Gamer League</h5>
+                                <p class="card-text">Compete in the Pro Gamer League and prove your skills.</p>
+                                <a href="#" class="btn btn-hero">Join Now</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-4">
+                        <div class="card event-card">
+                            <img src="{% static 'images/event 3.jpg' %}" class="card-img-top" alt="Event 3">
+                            <div class="card-body event-card-body">
+                                <h5 class="event-card-title">Retro Game Night</h5>
+                                <p class="card-text">Relive the classics with our Retro Game Night event.</p>
+                                <a href="#" class="btn btn-hero">Sign Up</a>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card event-card">
-                    <img src="{% static 'images/event 2.jpg' %}" class="card-img-top" alt="Event 2">
-                    <div class="card-body event-card-body">
-                        <h5 class="event-card-title">Pro Gamer League</h5>
-                        <p class="card-text">Compete in the Pro Gamer League and prove your skills.</p>
-                        <a href="#" class="btn btn-hero">Join Now</a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card event-card">
-                    <img src="{% static 'images/event 3.jpg' %}" class="card-img-top" alt="Event 3">
-                    <div class="card-body event-card-body">
-                        <h5 class="event-card-title">Retro Game Night</h5>
-                        <p class="card-text">Relive the classics with our Retro Game Night event.</p>
-                        <a href="#" class="btn btn-hero">Sign Up</a>
-                    </div>
-                </div>
+            </section>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-md-4">
+            <div class="news-sidebar">
+                <h4>Latest News</h4>
+                <ul>
+                    <li><a href="#">FC25 will be out on September 25</a></li>
+                    <li><a href="#">New Tournament: Fall Frenzy 2024</a></li>
+                    <li><a href="#">Exclusive Membership Benefits Revealed</a></li>
+                    <li><a href="#">GameHaven Hub's Top 10 Games of 2024</a></li>
+                </ul>
             </div>
         </div>
     </div>
-</section>
+</div>
 
 <!-- Community Section -->
 <section class="community-section">

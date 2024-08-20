@@ -11,7 +11,7 @@ from django.contrib import messages
 import stripe
 from django.urls import reverse
 from.decorators import *
-#from .utilis import *
+from .utilis import *
 from django.utils.safestring import mark_safe
 
 def gamerz_view(request):
@@ -569,4 +569,49 @@ def event_weather(request, city_name):
     return render(request, 'gamerz/event_weather.html', {'weather_data': weather_data, 'city_name': city_name})
 
 
+#ef twitch_streams_view(request):
+#   game_name = request.GET.get('game', 'Fortnite')  # Default to 'Fortnite'
+#   streams = get_twitch_streams(game_name)
+#   return render(request, 'gamerz/twitch_streams.html', {'streams': streams})
+
+
+
+
+#def get_oauth_token(client_id, client_secret):
+#    url = 'https://id.twitch.tv/oauth2/token'
+#    params = {
+#        'client_id': client_id,
+#        'client_secret': client_secret,
+#        'grant_type': 'client_credentials',
+#    }
+#    response = requests.post(url, params=params)
+#    return response.json()
+#
+#def get_oauth_token_view(request):
+#    # Replace with your actual Client ID and Client Secret
+#    client_id = 'by462onfaxsc3ynv8b951ako0o1n99'
+#    client_secret = '3vmdqjd5m9wtd1u9lhqwb9byq2qcdv'
+#    
+#    # Call the function with the correct arguments
+#    token_response = get_oauth_token(client_id, client_secret)
+#    
+#    return JsonResponse(token_response)
+
+#CLIENT_ID = 'by462onfaxsc3ynv8b951ako0o1n99'
+#CLIENT_SECRET = '3vmdqjd5m9wtd1u9lhqwb9byq2qcdv'
+#{"access_token": "fprqxxzaxmnbj6hlq0q3lpg2xvsckd", "expires_in": 5003716, "token_type": "bearer"}
+
+#def get_twitch_streams(game_name):
+#    client_id = 'by462onfaxsc3ynv8b951ako0o1n99'
+#    oauth_token = 'fprqxxzaxmnbj6hlq0q3lpg2xvsckd'
+#    headers = {
+#        'Client-ID': client_id,
+#        'Authorization': f'Bearer {oauth_token}',
+#    }
+#    url = f'https://api.twitch.tv/helix/streams?game_name={game_name}'
+#    response = requests.get(url, headers=headers)
+#    return response.json().get('data', [])
+#
+#def twitch_streams_view(request):
+#    return render(request, 'gamerz/twitch_streams.html')
 

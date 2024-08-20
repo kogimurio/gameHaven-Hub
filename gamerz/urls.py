@@ -3,7 +3,7 @@ from. import views
 
 
 urlpatterns = [
-    path('gamerz/', views.gamerz_view, name='gamerz'),
+    path('twitchstreams/', views.gamerz_view, name='gamerz'),
     path('games/', views.game_list_view, name='game_list'),
     path('games/<int:game_id>/', views.game_detail_view, name='game_detail'),
     path('favorites/add/<int:pk>/', views.add_favorite, name='add_favorite'),
@@ -47,4 +47,6 @@ urlpatterns = [
     path('selectmembership/', views.select_membership, name='selectmembership'),
     path('cancelmembership/', views.cancel_membership, name='cancelmembership'),
     path('weather/<str:city_name>/', views.event_weather, name='event_weather'),
+    #path('twitch-streams/', views.twitch_streams_view, name='twitch-streams'),
+    #path('getoauthtoken/', views.get_oauth_token_view, name='get_oauth_token'),
 ]
