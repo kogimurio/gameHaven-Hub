@@ -1,7 +1,201 @@
-{% extends 'base.html' %}
-{% load static %}
-{% block content %}
-<div class="container">
-    <p>Employee</p> 
-</div>
-{% endblock %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Dashboard - GameHaven Hub</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #121212;
+            color: #f8f9fa;
+            margin: 0;
+        }
+        .sidebar {
+            background-color: #1f1f1f;
+            height: 100vh;
+            padding-top: 20px;
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            width: 250px;
+            transition: all 0.3s;
+        }
+        .sidebar .nav-link {
+            color: #f8f9fa;
+            margin: 10px 0;
+        }
+        .sidebar .nav-link:hover {
+            color: #ff5722;
+        }
+        .sidebar .nav-item.active .nav-link {
+            color: #ff5722;
+            font-weight: bold;
+        }
+        .content {
+            margin-left: 250px;
+            padding: 20px;
+        }
+        .dashboard-header {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #ff5722;
+            margin-bottom: 20px;
+        }
+        .card {
+            background-color: #2c2c2c;
+            border: none;
+            margin-bottom: 20px;
+        }
+        .card-title {
+            color: #ff5722;
+        }
+        .card-body {
+            color: #f8f9fa;
+        }
+        .table thead th {
+            color: #ff5722;
+        }
+        .btn-custom {
+            background-color: #ff5722;
+            color: #fff;
+            border-radius: 20px;
+        }
+        .btn-custom:hover {
+            background-color: #e64a19;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+            .content {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="d-flex">
+        <!-- Sidebar -->
+        <div class="sidebar d-flex flex-column p-3">
+            <h3 class="text-center">{{ request.user.username }}</h3>
+            <hr class="bg-light">
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'home' %}"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'manage_gamers' %}"><i class="fas fa-users"></i> Manage Gamers</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'monitorgames' %}"><i class="fas fa-gamepad"></i> Monitor Games</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'employeereservation' %}"><i class="fas fa-calendar-check"></i> Reservations</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'achievementsbygamers' %}"><i class="fas fa-trophy"></i> Leaderboards</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'manageevents' %}"><i class="fas fa-calendar-plus"></i> Manage Events</a>
+                </li>
+                
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'chat_room' 1 %}"><i class="fas fa-comments"></i> Chat Room</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'employeereport' %}"><i class="fas fa-chart-bar"></i> Reports</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'employeesettings' %}"><i class="fas fa-cogs"></i> Settings</a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="content">
+            <div class="dashboard-header">
+                Employee Dashboard
+            </div>
+
+            <!-- Cards Section -->
+            <div class="row">
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Active Gamers</h5>
+                            <p class="card-text">120</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Reservations Today</h5>
+                            <p class="card-text">30</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Games in Progress</h5>
+                            <p class="card-text">15</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gamer Monitoring Table -->
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Gamers Activity</h5>
+                    <table class="table table-dark table-hover">
+                        <thead>
+                            <tr>
+                                <th>Gamer ID</th>
+                                <th>Username</th>
+                                <th>Current Game</th>
+                                <th>Playtime</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>001</td>
+                                <td>GamerX</td>
+                                <td>FIFA 25</td>
+                                <td>1h 20m</td>
+                                <td><span class="badge badge-success">Active</span></td>
+                                <td><button class="btn btn-custom">View</button></td>
+                            </tr>
+                            <tr>
+                                <td>002</td>
+                                <td>GamerPro</td>
+                                <td>Call of Duty</td>
+                                <td>45m</td>
+                                <td><span class="badge badge-warning">Idle</span></td>
+                                <td><button class="btn btn-custom">View</button></td>
+                            </tr>
+                            <!-- Add more rows as needed -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.0.9/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

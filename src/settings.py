@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 import os
+from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -45,6 +46,7 @@ INSTALLED_APPS = [
     'users',
     'fontawesome',
     'gamerz',
+    'widget_tweaks',
 ]
 
 MIDDLEWARE = [
@@ -153,3 +155,11 @@ STRIPE_SECRET_KEY = 'sk_test_51Ok0jcFw6q40j6RF1kyolWeXIGjRHIjCyPnk3LZWkfga8jGyZ6
 
 
 OPENWEATHERMAP_API_KEY = 'dcdde97a40e173829aaeabf6c422e001'
+
+
+# Main Project Secret Key
+SECRET_KEY = config('SECRET_KEY_MAIN')
+
+# App-Specific Secret Keys
+SECRET_KEY_APP1 = config('SECRET_KEY_APP1')
+SECRET_KEY_APP2 = config('SECRET_KEY_APP2')

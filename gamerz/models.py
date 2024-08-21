@@ -18,6 +18,7 @@ class Game(models.Model):
 class GamingStation(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField()
+    is_occupied = models.BooleanField(default=False, null=True)
 
 class Reservation(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
@@ -31,6 +32,16 @@ class Reservation(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.station.name} ({self.start_time} to {self.end_time})"
+
+class OngoingGame(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    station = models.ForeignKey(GamingStation, on_delete=models.CASCADE)
+    game_title = models.CharField(max_length=255)
+    start_time = models.DateTimeField()
+    status = models.CharField(max_length=50, choices=[('Active', 'Active'), ('Paused', 'Paused'), ('Completed', 'Completed')])
+    
+    def __str__(self):
+        return f"{self.game_title} at {self.station.name} by {self.user.username}"
 
 
 class Achievement(models.Model):

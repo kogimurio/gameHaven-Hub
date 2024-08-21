@@ -13,6 +13,8 @@ from django.urls import reverse
 from.decorators import *
 from .utilis import *
 from django.utils.safestring import mark_safe
+from users.models import User
+from.forms import *
 
 def gamerz_view(request):
     return render(request, 'gamerz/gamer.html')
@@ -53,11 +55,11 @@ def remove_favorite(request, pk):
     request.user.favorite_games.remove(game)
     return redirect('game_list')
 
-def game_reservations(request):
-    # Implement game reservations view here
-    pass
+#def game_reservations(request):
+#    # Implement game reservations view here
+#    pass
 
-def leaderboards(request):
+#def leaderboards(request):
     # Implement leaderboards view here
     pass
 
@@ -291,6 +293,7 @@ def reservation_success(request):
 def reservation_cancel(request):
     messages.error(request, "Payment was canceled.")
     return render(request, 'gamerz/reservation_cancel.html')
+
 
 
 def event_list(request):
@@ -614,4 +617,138 @@ def event_weather(request, city_name):
 #
 #def twitch_streams_view(request):
 #    return render(request, 'gamerz/twitch_streams.html')
+
+#Employee Views
+def employee_reservation_view(request):
+    reservations = Reservation.objects.all().select_related('user', 'station')
+    reservation_data = []
+
+    for reservation in reservations:
+        # Calculate the total hours
+        total_hours = (reservation.end_time - reservation.start_time).total_seconds() / 3600
+        # Calculate the total cost
+        total_cost = total_hours * 200  # Ksh 200 per hour
+
+        # Store the data in a dictionary
+        reservation_data.append({
+            'reservation_id': reservation.id,
+            'user_username': reservation.user.username,
+            'station_name': reservation.station.name,
+            'start_time': reservation.start_time,
+            'end_time': reservation.end_time,
+            'total_hours': total_hours,
+            'total_cost': total_cost
+        })
+
+    return render(request, 'employee/reservation_list.html', {'reservation_data': reservation_data})
+
+def delete_reservation_view(request, reservation_id):
+    reservation = get_object_or_404(Reservation, id=reservation_id)
+    if request.method == 'POST':
+        reservation.delete()
+        return redirect('employeereservation')
+    return redirect('employeereservation')
+
+
+def achievements_by_gamers_view(request):
+    # Retrieve all achievements and associated gamer scores
+    achievements = Achievement.objects.all()
+    gamers_scores = GamerScore.objects.select_related('user').prefetch_related('achievements').all()
+
+    # Prepare a dictionary to store gamer achievements
+    gamer_achievements = {}
+    for gamer_score in gamers_scores:
+        if gamer_score.user not in gamer_achievements:
+            gamer_achievements[gamer_score.user] = {
+                'score': gamer_score.score,
+                'achievements': list(gamer_score.achievements.all())
+            }
+
+    # Rank gamers based on their scores
+    sorted_gamers = sorted(gamer_achievements.items(), key=lambda item: item[1]['score'], reverse=True)
+    ranked_gamers = {user: {**info, 'rank': index + 1} for index, (user, info) in enumerate(sorted_gamers)}
+
+    return render(request, 'employee/achievements_by_gamers.html', {
+        'achievements': achievements,
+        'gamer_achievements': ranked_gamers
+    })
+
+def monitor_games_view(request):
+    # Retrieve ongoing games and station status
+    ongoing_games = OngoingGame.objects.all()
+    stations = GamingStation.objects.all()
+    
+    return render(request, 'employee/monitorgames.html', {
+        'ongoing_games': ongoing_games,
+        'stations': stations,
+    })
+
+
+def manage_gamers_view(request):
+    gamers = User.objects.all()  # Fetch all gamers
+    return render(request, 'employee/manage_gamers.html', {'gamers': gamers})
+
+def gamer_detail_view(request, user_id):
+    gamer = get_object_or_404(User, id=user_id)
+    return render(request, 'employee/gamer_detail.html', {'gamer': gamer})
+
+def update_gamer_view(request, user_id):
+    gamer = get_object_or_404(User, id=user_id)
+    if request.method == 'POST':
+        gamer.username = request.POST.get('username')
+        gamer.email = request.POST.get('email')
+        # Update other fields as needed
+        gamer.save()
+        messages.success(request, 'Gamer details updated successfully')
+        return redirect('manage_gamers')
+    return render(request, 'employee/update_gamer.html', {'gamer': gamer})
+
+
+def employee_settings_view(request):
+    return render(request, 'employee/settings.html')
+
+def employee_report_view(request):
+    return render(request, 'employee/report.html')
+
+
+def create_event_view(request):
+    if request.method == 'POST':
+        form = EventForm(request.POST)
+        if form.is_valid():
+            event = form.save(commit=False)
+            event.organizer = request.user
+            event.save()
+            return redirect('manageevents')  # Redirect to a list of events or another relevant page
+    else:
+        form = EventForm()
+    
+    return render(request, 'employee/create_event.html', {'form': form})
+
+def manage_events_view(request):
+    events = Event.objects.all().order_by('start_date')
+    return render(request, 'employee/manage_events.html', {'events': events})
+
+
+def edit_event_view(request, event_id):
+    event = get_object_or_404(Event, id=event_id)
+    if request.method == 'POST':
+        form = EventForm(request.POST, instance=event)
+        if form.is_valid():
+            form.save()
+            return redirect('manageevents')  # Redirect to the event management page
+        else:
+            print(form.errors)  # Print form errors to console for debugging
+    else:
+        form = EventForm(instance=event)
+    return render(request, 'employee/edit_event.html', {'form': form, 'event': event})
+
+def delete_event_view(request, event_id):
+    event = get_object_or_404(Event, id=event_id)
+    if request.method == 'POST':
+        event.delete()
+        return redirect('manageevents')
+    return redirect('manageevents')
+
+
+
 

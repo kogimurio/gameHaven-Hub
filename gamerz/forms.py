@@ -20,7 +20,11 @@ class GameForm(forms.ModelForm):
 class EventForm(forms.ModelForm):
     class Meta:
         model = Event
-        fields = ['name', 'description', 'start_date', 'end_date', 'location', 'max_participants']
+        fields = ['name', 'description', 'start_date', 'end_date', 'location', 'max_participants', 'registration_fee']
+        widgets = {
+            'start_date': forms.DateTimeInput(attrs={'class': 'form-control datetimepicker'}),
+            'end_date': forms.DateTimeInput(attrs={'class': 'form-control datetimepicker'}),
+        }
 
 
 
