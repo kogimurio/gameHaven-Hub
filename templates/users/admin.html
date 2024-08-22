@@ -109,25 +109,31 @@
             <hr class="bg-light">
             <ul class="nav flex-column">
                 <li class="nav-item">
-                    <a class="nav-link" href="#"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                    <a class="nav-link" href="{% url 'admin' %}"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#"><i class="fas fa-users"></i> Manage Users</a>
+                    <a class="nav-link" href="{% url 'adminmanagegamers' %}"><i class="fas fa-users"></i> Manage Gamers</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#"><i class="fas fa-gamepad"></i> Manage Games</a>
+                    <a class="nav-link" href="{% url 'adminmonitorgames' %}"><i class="fas fa-gamepad"></i> Monitor Games</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#"><i class="fas fa-calendar-check"></i> Reservations</a>
+                    <a class="nav-link" href="{% url 'adminreservation' %}"><i class="fas fa-calendar-check"></i> Reservations</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#"><i class="fas fa-trophy"></i> Manage Tournaments</a>
+                    <a class="nav-link" href="{% url 'adminachievementsbygamers' %}"><i class="fas fa-trophy"></i> Leaderboards</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#"><i class="fas fa-chart-bar"></i> Reports & Analytics</a>
+                    <a class="nav-link" href="{% url 'adminmanageevents' %}"><i class="fas fa-calendar-plus"></i> Manage Tournaments/Events</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#"><i class="fas fa-cogs"></i> Settings</a>
+                    <a class="nav-link" href="{% url 'chat_room' 1 %}"><i class="fas fa-comments"></i> Chat Room</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'adminreport' %}"><i class="fas fa-chart-bar"></i> Reports & Analytics</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'employeesettings' %}"><i class="fas fa-cogs"></i> Settings</a>
                 </li>
             </ul>
         </div>

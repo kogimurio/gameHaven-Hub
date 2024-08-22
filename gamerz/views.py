@@ -21,6 +21,8 @@ from django.conf import settings
 from django.template.loader import render_to_string
 from django.db.models import Sum, Count
 from django.utils.dateparse import parse_datetime
+from django.db.models import F, Sum, Count
+
 
 
 def gamerz_view(request):
@@ -676,13 +678,6 @@ def employee_reservation_view(request):
 
     return render(request, 'employee/reservation_list.html', {'reservation_data': reservation_data})
 
-def delete_reservation_view(request, reservation_id):
-    reservation = get_object_or_404(Reservation, id=reservation_id)
-    if request.method == 'POST':
-        reservation.delete()
-        return redirect('employeereservation')
-    return redirect('employeereservation')
-
 
 def achievements_by_gamers_view(request):
     # Retrieve all achievements and associated gamer scores
@@ -734,7 +729,7 @@ def monitor_games_view(request):
     })
 
 
-def manage_gamers_view(request):
+def employee_manage_gamers_view(request):
     gamers = User.objects.all()  # Fetch all gamers
     return render(request, 'employee/manage_gamers.html', {'gamers': gamers})
 
@@ -750,9 +745,15 @@ def update_gamer_view(request, user_id):
         # Update other fields as needed
         gamer.save()
         messages.success(request, 'Gamer details updated successfully')
-        return redirect('manage_gamers')
+        return redirect('adminmanagegamers')
     return render(request, 'employee/update_gamer.html', {'gamer': gamer})
 
+def delete_gamer_view(request, game_id):
+    gamer = get_object_or_404(Game, id=game_id)
+    if request.method == 'POST':
+        gamer.delete()
+        return redirect('adminmanagegamers')
+    return redirect('adminmanagegamers')
 
 def employee_settings_view(request):
     return render(request, 'employee/settings.html')
@@ -789,12 +790,12 @@ def edit_event_view(request, event_id):
         form = EventForm(instance=event)
     return render(request, 'employee/edit_event.html', {'form': form, 'event': event})
 
-def delete_event_view(request, event_id):
-    event = get_object_or_404(Event, id=event_id)
-    if request.method == 'POST':
-        event.delete()
-        return redirect('manageevents')
-    return redirect('manageevents')
+#def delete_event_view(request, event_id):
+#    event = get_object_or_404(Event, id=event_id)
+#    if request.method == 'POST':
+#        event.delete()
+#        return redirect('manageevents')
+#    return redirect('manageevents')
 
 
 def employee_report_view(request):
@@ -846,7 +847,7 @@ def employee_report_view(request):
     })
     
 
-def sales_chart_view(request):
+def chart_view(request):
     if request.method == 'POST':
         form = SaleForm(request.POST)
         if form.is_valid():
@@ -857,8 +858,8 @@ def sales_chart_view(request):
                 total_sales=Sum('total_sales'),
                 total_clients=Count('client', distinct=True)
             ).order_by('date')
-            
-            # You should handle AJAX response here if needed
+
+            # Handle AJAX response if needed
             # return JsonResponse({'some_key': some_value})
 
         else:
@@ -873,16 +874,272 @@ def sales_chart_view(request):
         total_clients=Count('client', distinct=True)
     ).order_by('date')
 
+    # Retrieve sales data from events grouped by date
+    event_sales_data = Event.objects.values('start_date').annotate(
+        total_event_sales=Sum('registration_fee')
+    ).order_by('start_date')
+
+    # Retrieve sales data from memberships grouped by date
+    membership_sales_data = Membership.objects.values('created_at__date').annotate(
+        total_membership_sales=Sum('plan__price')  # Access price via ForeignKey
+    ).order_by('created_at__date')
+
+    # Retrieve reservation data grouped by date
+    reservation_data = Reservation.objects.values('start_time__date').annotate(
+        count=Count('id')
+    ).order_by('start_time__date')
+
     # Prepare chart data
     chart_data = {
+        'daily_sales_dates': [sale['date'].strftime('%Y-%m-%d') for sale in sales_data],
+        'daily_sales_amount': [float(sale['total_sales']) if sale['total_sales'] is not None else 0 for sale in sales_data],
+        'reservation_dates': [res['start_time__date'].strftime('%Y-%m-%d') for res in reservation_data],
+        'total_reservations': [res['count'] for res in reservation_data],
         'dates': [sale['date'].strftime('%Y-%m-%d') for sale in sales_data],
-        'total_sales': [float(sale['total_sales']) for sale in sales_data],  # Convert Decimal to float
+        'total_sales': [float(sale['total_sales']) if sale['total_sales'] is not None else 0 for sale in sales_data],
+        'event_sales_dates': [event['start_date'].strftime('%Y-%m-%d') for event in event_sales_data],
+        'total_event_sales': [float(event['total_event_sales']) if event['total_event_sales'] is not None else 0 for event in event_sales_data],
+        'membership_sales_dates': [membership['created_at__date'].strftime('%Y-%m-%d') for membership in membership_sales_data],
+        'total_membership_sales': [float(membership['total_membership_sales']) if membership['total_membership_sales'] is not None else 0 for membership in membership_sales_data],
     }
+    print(sales_data)
+    print(event_sales_data)
+    print(membership_sales_data)
+    print(reservation_data)
 
-    return render(request, 'employee/sales_chart.html', {
+
+    return render(request, 'employee/chart.html', {
         'form': form,
         'sales_data': sales_data,
         'chart_data': chart_data,
     })
 
 
+def admin_manage_gamers_view(request):
+    gamers = User.objects.all() 
+    return render(request, 'admin/admin_manage_gamers.html', {'gamers': gamers})
+
+def admin_monitor_games_view(request):
+    # Retrieve all gaming stations
+    stations = GamingStation.objects.all()
+
+    # Update each station's availability based on active ongoing games
+    for station in stations:
+        # Check if there's any active ongoing game for this station
+        active_games = OngoingGame.objects.filter(station=station, status='Active')
+        
+        # If there's an active game, set is_occupied to True; otherwise, False
+        if active_games.exists():
+            station.is_occupied = True
+        else:
+            station.is_occupied = False
+        
+        # Save the updated status to the database
+        station.save()
+
+    # Retrieve all ongoing games
+    ongoing_games = OngoingGame.objects.all()
+
+    return render(request, 'admin/adminmonitorgames.html', {
+        'ongoing_games': ongoing_games,
+        'stations': stations,
+    })
+
+def admin_reservation_view(request):
+    reservations = Reservation.objects.all().select_related('user', 'station')
+    reservation_data = []
+
+    for reservation in reservations:
+        # Calculate the total hours
+        total_hours = (reservation.end_time - reservation.start_time).total_seconds() / 3600
+        # Calculate the total cost
+        total_cost = total_hours * 200  # Ksh 200 per hour
+
+        # Store the data in a dictionary
+        reservation_data.append({
+            'reservation_id': reservation.id,
+            'user_username': reservation.user.username,
+            'station_name': reservation.station.name,
+            'start_time': reservation.start_time,
+            'end_time': reservation.end_time,
+            'total_hours': total_hours,
+            'total_cost': total_cost
+        })
+
+    return render(request, 'admin/admin_reservation_list.html', {'reservation_data': reservation_data})
+
+def delete_reservation_view(request, reservation_id):
+    reservation = get_object_or_404(Reservation, id=reservation_id)
+    reservation.delete()
+    messages.success(request, "Reservation successfully deleted.")
+    return redirect('adminreservation')
+
+def admin_achievements_by_gamers_view(request):
+    # Retrieve all achievements and associated gamer scores
+    achievements = Achievement.objects.all()
+    gamers_scores = GamerScore.objects.select_related('user').prefetch_related('achievements').all()
+
+    # Prepare a dictionary to store gamer achievements
+    gamer_achievements = {}
+    for gamer_score in gamers_scores:
+        if gamer_score.user not in gamer_achievements:
+            gamer_achievements[gamer_score.user] = {
+                'score': gamer_score.score,
+                'achievements': list(gamer_score.achievements.all())
+            }
+
+    # Rank gamers based on their scores
+    sorted_gamers = sorted(gamer_achievements.items(), key=lambda item: item[1]['score'], reverse=True)
+    ranked_gamers = {user: {**info, 'rank': index + 1} for index, (user, info) in enumerate(sorted_gamers)}
+
+    return render(request, 'admin/admin_achievements_by_gamers.html', {
+        'achievements': achievements,
+        'gamer_achievements': ranked_gamers
+    })
+
+def admin_manage_events_view(request):
+    events = Event.objects.all().order_by('start_date')
+    return render(request, 'admin/admin_manage_events.html', {'events': events})
+
+def delete_event_view(request, event_id):
+    event = get_object_or_404(Event, id=event_id)
+    event.delete()
+    messages.success(request, "Event successfully deleted.")
+    return redirect('adminmanageevents')
+
+
+def edit_event_view(request, event_id):
+    event = get_object_or_404(Event, id=event_id)
+    if request.method == "POST":
+        form = EventForm(request.POST, instance=event)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Event successfully updated.")
+            return redirect('adminmanageevents')
+    else:
+        form = EventForm(instance=event)
+    return render(request, 'admin/edit_event.html', {'form': form})
+
+def admin_report_view(request):
+    if request.method == 'POST':
+        form = SaleForm(request.POST)
+        if form.is_valid():
+            form.save()  # Save the new sale entry
+            
+            # Prepare the updated sales data for AJAX response
+            sales_data = Sale.objects.values('date').annotate(
+                total_sales=Sum('total_sales'),
+                total_clients=Count('client', distinct=True)
+            ).order_by('date')
+            
+            # Prepare the updated chart data
+            chart_data = {
+                'dates': [sale['date'].strftime('%Y-%m-%d') for sale in sales_data],
+                'total_sales': [sale['total_sales'] for sale in sales_data],
+            }
+            
+            html_sales_table = render_to_string('employee/report.html', {'sales_data': sales_data})
+            return JsonResponse({'html_sales_table': html_sales_table})
+        else:
+            # Return form errors if the form is invalid
+            return JsonResponse({'errors': form.errors}, status=400)
+    else:
+        form = SaleForm()
+    
+    # Retrieve aggregated sales data grouped by date
+    sales_data = Sale.objects.values('date').annotate(
+        total_sales=Sum('total_sales'),
+        total_clients=Count('client', distinct=True)
+    ).order_by('date')
+    
+    # Retrieve list of clients for the dropdown
+    clients = Client.objects.all()
+    
+    # Prepare chart data
+    chart_data = {
+        'dates': [sale['date'].strftime('%Y-%m-%d') for sale in sales_data],
+        'total_sales': [sale['total_sales'] for sale in sales_data],
+    }
+
+    return render(request, 'admin/admin_report.html', {
+        'form': form,
+        'sales_data': sales_data,
+        'chart_data': chart_data,
+        'clients': clients,  # Pass clients to the template
+    })
+
+def admin_chart_view(request):
+    if request.method == 'POST':
+        form = SaleForm(request.POST)
+        if form.is_valid():
+            form.save()  # Save the new sale entry
+
+            # Prepare the updated sales data for AJAX response
+            sales_data = Sale.objects.values('date').annotate(
+                total_sales=Sum('total_sales'),
+                total_clients=Count('client', distinct=True)
+            ).order_by('date')
+
+            # Handle AJAX response if needed
+            # return JsonResponse({'some_key': some_value})
+
+        else:
+            # Return form errors if the form is invalid
+            return JsonResponse({'errors': form.errors}, status=400)
+    else:
+        form = SaleForm()
+
+    # Retrieve aggregated sales data grouped by date
+    sales_data = Sale.objects.values('date').annotate(
+        total_sales=Sum('total_sales'),
+        total_clients=Count('client', distinct=True)
+    ).order_by('date')
+
+    # Retrieve sales data from events grouped by date
+    event_sales_data = Event.objects.values('start_date').annotate(
+        total_event_sales=Sum('registration_fee')
+    ).order_by('start_date')
+
+    # Retrieve sales data from memberships grouped by date
+    membership_sales_data = Membership.objects.values('created_at__date').annotate(
+        total_membership_sales=Sum('plan__price')  # Access price via ForeignKey
+    ).order_by('created_at__date')
+
+    # Retrieve reservation data grouped by date
+    reservation_data = Reservation.objects.values('start_time__date').annotate(
+        count=Count('id')
+    ).order_by('start_time__date')
+
+    # Prepare chart data
+    chart_data = {
+        'daily_sales_dates': [sale['date'].strftime('%Y-%m-%d') for sale in sales_data],
+        'daily_sales_amount': [float(sale['total_sales']) if sale['total_sales'] is not None else 0 for sale in sales_data],
+        'reservation_dates': [res['start_time__date'].strftime('%Y-%m-%d') for res in reservation_data],
+        'total_reservations': [res['count'] for res in reservation_data],
+        'dates': [sale['date'].strftime('%Y-%m-%d') for sale in sales_data],
+        'total_sales': [float(sale['total_sales']) if sale['total_sales'] is not None else 0 for sale in sales_data],
+        'event_sales_dates': [event['start_date'].strftime('%Y-%m-%d') for event in event_sales_data],
+        'total_event_sales': [float(event['total_event_sales']) if event['total_event_sales'] is not None else 0 for event in event_sales_data],
+        'membership_sales_dates': [membership['created_at__date'].strftime('%Y-%m-%d') for membership in membership_sales_data],
+        'total_membership_sales': [float(membership['total_membership_sales']) if membership['total_membership_sales'] is not None else 0 for membership in membership_sales_data],
+    }
+
+
+    return render(request, 'admin/admin_chart.html', {
+        'form': form,
+        'sales_data': sales_data,
+        'chart_data': chart_data,
+    })
+
+def admin_create_event_view(request):
+    if request.method == 'POST':
+        form = EventForm(request.POST)
+        if form.is_valid():
+            event = form.save(commit=False)
+            event.organizer = request.user
+            event.save()
+            return redirect('adminmanageevents') 
+    else:
+        form = EventForm()
+    
+    return render(request, 'admin/admin_create_event.html', {'form': form})

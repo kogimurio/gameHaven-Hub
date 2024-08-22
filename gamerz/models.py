@@ -104,6 +104,15 @@ class Registration(models.Model):
     payment_status = models.CharField(max_length=20, choices=[('Pending', 'Pending'), ('Paid', 'Paid')], default='Pending')
 
 
+class MembershipPlan(models.Model):
+    name = models.CharField(max_length=50)
+    price = models.DecimalField(max_digits=6, decimal_places=2)
+    duration_days = models.IntegerField()
+    benefits = models.TextField()
+
+    def __str__(self):
+        return self.name
+
 class Membership(models.Model):
     TIER_CHOICES = [
         ('Basic', 'Basic'),
@@ -116,18 +125,12 @@ class Membership(models.Model):
     start_date = models.DateTimeField(auto_now_add=True)
     end_date = models.DateTimeField(null=True, blank=True)
     is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True)
+    plan = models.ForeignKey(MembershipPlan, on_delete=models.CASCADE, null=True)
 
     def __str__(self):
         return f"{self.user.username} - {self.tier}"
 
-class MembershipPlan(models.Model):
-    name = models.CharField(max_length=50)
-    price = models.DecimalField(max_digits=6, decimal_places=2)
-    duration_days = models.IntegerField()
-    benefits = models.TextField()
-
-    def __str__(self):
-        return self.name
 
 
 class Client(models.Model):

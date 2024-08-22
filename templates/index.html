@@ -127,7 +127,6 @@
     <div class="container">
         <h1>Welcome {{ request.user.username }} to GameHaven Hub</h1>
         <p>Your Ultimate Gaming Experience Starts Here</p>
-        <a href="#" class="btn btn-hero btn-lg mt-4">Discover More</a>
     </div>
 </section>
 
@@ -174,7 +173,7 @@
                             <div class="card-body event-card-body">
                                 <h5 class="event-card-title">Pro Gamer League</h5>
                                 <p class="card-text">Compete in the Pro Gamer League and prove your skills.</p>
-                                <a href="#" class="btn btn-hero">Join Now</a>
+                                <a href="{% url 'login' %}" class="btn btn-hero">Join Now</a>
                             </div>
                         </div>
                     </div>
@@ -184,7 +183,7 @@
                             <div class="card-body event-card-body">
                                 <h5 class="event-card-title">Retro Game Night</h5>
                                 <p class="card-text">Relive the classics with our Retro Game Night event.</p>
-                                <a href="#" class="btn btn-hero">Sign Up</a>
+                                <a href="{% url 'register' %}" class="btn btn-hero">Sign Up</a>
                             </div>
                         </div>
                     </div>
@@ -212,7 +211,7 @@
     <div class="container">
         <h2>Join Our Community</h2>
         <p>Connect with fellow gamers, share your experiences, and stay updated on all things gaming.</p>
-        <a href="#" class="btn btn-lg">Get Involved</a>
+        <a href="{% url 'register' %}" class="btn btn-lg">Get Involved</a>
     </div>
 </section>
 {% endblock %}

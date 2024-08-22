@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales Report - GameHaven Hub</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            background-color: #121212;
+            color: #f8f9fa;
+        }
+        .card {
+            background-color: #2c2c2c;
+            border: none;
+            margin-bottom: 20px;
+        }
+        .btn-custom {
+            background-color: #ff5722;
+            color: #fff;
+            border-radius: 20px;
+        }
+        .btn-custom:hover {
+            background-color: #e64a19;
+        }
+        .chart-container {
+            position: relative;
+            max-height: 400px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <!-- Back Button -->
+        <a href="{% url 'adminreport' %}" class="btn btn-custom mb-3">
+            <i class="fas fa-arrow-left"></i> Back to Reports
+        </a>
+
+        <!-- Daily Sales Overview -->
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Daily Sales Overview</h5>
+                <div class="chart-container">
+                    <canvas id="dailySalesChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reservations Overview -->
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Reservations Overview</h5>
+                <div class="chart-container">
+                    <canvas id="reservationsChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Sales Overview -->
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Total Sales Overview</h5>
+                <div class="chart-container">
+                    <canvas id="salesChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Event Sales Overview -->
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Event Sales Overview</h5>
+                <div class="chart-container">
+                    <canvas id="eventSalesChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Membership Sales Overview -->
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Membership Sales Overview</h5>
+                <div class="chart-container">
+                    <canvas id="membershipSalesChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Daily Sales Data
+        var dailySalesLabels = {{ chart_data.daily_sales_dates|safe }};
+        var dailySalesData = {{ chart_data.daily_sales_amount|safe }};
+
+        var dailySalesCtx = document.getElementById('dailySalesChart').getContext('2d');
+        var dailySalesChart = new Chart(dailySalesCtx, {
+            type: 'bar',
+            data: {
+                labels: dailySalesLabels,
+                datasets: [{
+                    label: 'Daily Sales (Ksh)',
+                    data: dailySalesData,
+                    backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // Reservations Data
+        var reservationsLabels = {{ chart_data.reservation_dates|safe }};
+        var reservationsData = {{ chart_data.total_reservations|safe }};
+
+        var reservationsCtx = document.getElementById('reservationsChart').getContext('2d');
+        var reservationsChart = new Chart(reservationsCtx, {
+            type: 'line',
+            data: {
+                labels: reservationsLabels,
+                datasets: [{
+                    label: 'Reservations',
+                    data: reservationsData,
+                    backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 2,
+                    fill: true,
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // Total Sales Data
+        var salesLabels = {{ chart_data.dates|safe }};
+        var salesData = {{ chart_data.total_sales|safe }};
+
+        var salesCtx = document.getElementById('salesChart').getContext('2d');
+        var salesChart = new Chart(salesCtx, {
+            type: 'line',
+            data: {
+                labels: salesLabels,
+                datasets: [{
+                    label: 'Total Sales (Ksh)',
+                    data: salesData,
+                    backgroundColor: 'rgba(255, 87, 34, 0.5)',
+                    borderColor: 'rgba(255, 87, 34, 1)',
+                    borderWidth: 2,
+                    fill: true,
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // Event Sales Data
+        var eventSalesLabels = {{ chart_data.event_sales_dates|safe }};
+        var eventSalesData = {{ chart_data.total_event_sales|safe }};
+
+        var eventSalesCtx = document.getElementById('eventSalesChart').getContext('2d');
+        var eventSalesChart = new Chart(eventSalesCtx, {
+            type: 'line',
+            data: {
+                labels: eventSalesLabels,
+                datasets: [{
+                    label: 'Event Sales (Ksh)',
+                    data: eventSalesData,
+                    backgroundColor: 'rgba(75, 192, 192, 0.5)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 2,
+                    fill: true,
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // Membership Sales Data
+        var membershipSalesLabels = {{ chart_data.membership_sales_dates|safe }};
+        var membershipSalesData = {{ chart_data.total_membership_sales|safe }};
+
+        var membershipSalesCtx = document.getElementById('membershipSalesChart').getContext('2d');
+        var membershipSalesChart = new Chart(membershipSalesCtx, {
+            type: 'line',
+            data: {
+                labels: membershipSalesLabels,
+                datasets: [{
+                    label: 'Membership Sales (Ksh)',
+                    data: membershipSalesData,
+                    backgroundColor: 'rgba(153, 102, 255, 0.5)',
+                    borderColor: 'rgba(153, 102, 255, 1)',
+                    borderWidth: 2,
+                    fill: true,
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

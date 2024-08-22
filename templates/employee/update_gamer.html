@@ -25,7 +25,7 @@
 <body>
     <div class="container mt-5">
         <!-- Back Button -->
-        <a href="{% url 'manage_gamers' %}" class="btn btn-custom mb-3">
+        <a href="{% url 'adminmanagegamers' %}" class="btn btn-custom mb-3">
             <i class="fas fa-arrow-left"></i> Back to Gamers List
         </a>
 
@@ -44,7 +44,7 @@
                         <input type="email" class="form-control" id="email" name="email" value="{{ gamer.email }}" required>
                     </div>
                     <!-- Add other fields as needed -->
-                    <button type="submit" class="btn btn-custom">Update</button>
+                    <button type="submit" class="btn btn-custom btn-success">Update</button>
                 </form>
             </div>
         </div>
