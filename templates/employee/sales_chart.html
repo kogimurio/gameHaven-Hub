@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales Report - GameHaven Hub</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            background-color: #121212;
+            color: #f8f9fa;
+        }
+        .card {
+            background-color: #2c2c2c;
+            border: none;
+            margin-bottom: 20px;
+        }
+        .btn-custom {
+            background-color: #ff5722;
+            color: #fff;
+            border-radius: 20px;
+        }
+        .btn-custom:hover {
+            background-color: #e64a19;
+        }
+        #salesChart{
+            max-height: 450px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <!-- Back Button -->
+        <a href="{% url 'employeereport' %}" class="btn btn-custom mb-3">
+            <i class="fas fa-arrow-left"></i> Back to Reports
+        </a>
+
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Daily Sales Overview</h5>
+                <!-- Chart displaying total sales over time -->
+                <canvas id="salesChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var chartLabels = {{ chart_data.dates|safe }};
+    var chartData = {{ chart_data.total_sales|safe }};
+
+    var ctx = document.getElementById('salesChart').getContext('2d');
+    var salesChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: chartLabels,
+            datasets: [{
+                label: 'Total Sales (Ksh)',
+                data: chartData,
+                backgroundColor: 'rgba(255, 87, 34, 0.5)',
+                borderColor: 'rgba(255, 87, 34, 1)',
+                borderWidth: 2,
+                fill: true,
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+    </script>
+    
+</body>
+</html>

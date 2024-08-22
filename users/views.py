@@ -3,12 +3,11 @@ from.forms import UserRegistrationForm
 from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm
-from datetime import datetime
 import pyotp
 from .models import User
 from django.contrib.auth import get_user_model
-
-
+from django.utils import timezone
+from gamerz.models import OngoingGame, Reservation
 from datetime import datetime, timedelta
 from django.contrib import messages
 from django.conf import settings
@@ -150,11 +149,37 @@ def admin_dashboard_view(request):
 
 
 def employee_dashboard_view(request):
-    return render(request, 'users/employee.html')
 
+    today = timezone.now().date()
 
-#def gamer_dashboard_view(request):
-#    return render(request, 'users/gamer.html')
+    # Calculate dynamic data
+    active_gamers_count = OngoingGame.objects.filter(status='Active').count()
+    reservations_today_count = Reservation.objects.filter(start_time__date=today).count()
+    games_in_progress_count = OngoingGame.objects.filter(status__in=['Active', 'Paused']).count()
+    
+    gamers_activity = []
+    now = timezone.now()
+    ongoing_games = OngoingGame.objects.select_related('user', 'station').all()
+
+    for game in ongoing_games:
+        playtime_minutes = int((now - game.start_time).total_seconds() / 60)
+        gamers_activity.append({
+            'gamer_id': game.user.id,
+            'username': game.user.username,
+            'game_title': game.game_title,
+            'playtime': playtime_minutes,
+            'status': game.status,
+        })
+
+    context = {
+        'active_gamers_count': active_gamers_count,
+        'reservations_today_count': reservations_today_count,
+        'games_in_progress_count': games_in_progress_count,
+        'gamers_activity': gamers_activity,
+    }
+
+    return render(request, 'users/employee.html', context)
+
 
 
 def logout_view(request):

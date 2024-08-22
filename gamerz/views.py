@@ -15,6 +15,13 @@ from .utilis import *
 from django.utils.safestring import mark_safe
 from users.models import User
 from.forms import *
+import pandas as pd
+import os
+from django.conf import settings
+from django.template.loader import render_to_string
+from django.db.models import Sum, Count
+from django.utils.dateparse import parse_datetime
+
 
 def gamerz_view(request):
     return render(request, 'gamerz/gamer.html')
@@ -62,6 +69,13 @@ def remove_favorite(request, pk):
 #def leaderboards(request):
     # Implement leaderboards view here
     pass
+def ongoing_game_detail(request, pk):
+    game = get_object_or_404(OngoingGame, pk=pk)
+    context = {
+        'game': game,
+    }
+    return render(request, 'gamerz/ongoing_game_detail.html', context)
+
 
 def gameform(request):
     return render(request, 'gamerz/game_form.html')
@@ -71,10 +85,28 @@ def reservation_view(request):
     stations = GamingStation.objects.all()
     if request.method == 'POST':
         station_id = request.POST.get('station_id')
-        start_time = request.POST.get('start_time')
+        start_time_str = request.POST.get('start_time')
         duration = int(request.POST.get('duration'))
-        end_time = datetime.fromisoformat(start_time) + timedelta(hours=duration)
+
+        # Parse start time and calculate end time
+        start_time = parse_datetime(start_time_str)
+        end_time = start_time + timedelta(hours=duration)
+
+        # Get the selected station
         station = GamingStation.objects.get(id=station_id)
+
+        # Check for overlapping reservations
+        overlapping_reservations = Reservation.objects.filter(
+            station=station,
+            end_time__gt=start_time,
+            start_time__lt=end_time
+        )
+
+        if overlapping_reservations.exists():
+            messages.error(request, 'The selected station is already reserved for the specified time period.')
+            return render(request, 'gamerz/reservation.html', {'stations': stations})
+
+        # Create and save the new reservation
         reservation = Reservation(
             user=request.user,
             station=station,
@@ -82,7 +114,9 @@ def reservation_view(request):
             end_time=end_time,
         )
         reservation.save()
+
         return redirect('payments', reservation_id=reservation.id)
+
     return render(request, 'gamerz/reservation.html', {'stations': stations})
 
 
@@ -674,10 +708,26 @@ def achievements_by_gamers_view(request):
     })
 
 def monitor_games_view(request):
-    # Retrieve ongoing games and station status
-    ongoing_games = OngoingGame.objects.all()
+    # Retrieve all gaming stations
     stations = GamingStation.objects.all()
-    
+
+    # Update each station's availability based on active ongoing games
+    for station in stations:
+        # Check if there's any active ongoing game for this station
+        active_games = OngoingGame.objects.filter(station=station, status='Active')
+        
+        # If there's an active game, set is_occupied to True; otherwise, False
+        if active_games.exists():
+            station.is_occupied = True
+        else:
+            station.is_occupied = False
+        
+        # Save the updated status to the database
+        station.save()
+
+    # Retrieve all ongoing games
+    ongoing_games = OngoingGame.objects.all()
+
     return render(request, 'employee/monitorgames.html', {
         'ongoing_games': ongoing_games,
         'stations': stations,
@@ -706,9 +756,6 @@ def update_gamer_view(request, user_id):
 
 def employee_settings_view(request):
     return render(request, 'employee/settings.html')
-
-def employee_report_view(request):
-    return render(request, 'employee/report.html')
 
 
 def create_event_view(request):
@@ -750,5 +797,92 @@ def delete_event_view(request, event_id):
     return redirect('manageevents')
 
 
+def employee_report_view(request):
+    if request.method == 'POST':
+        form = SaleForm(request.POST)
+        if form.is_valid():
+            form.save()  # Save the new sale entry
+            
+            # Prepare the updated sales data for AJAX response
+            sales_data = Sale.objects.values('date').annotate(
+                total_sales=Sum('total_sales'),
+                total_clients=Count('client', distinct=True)
+            ).order_by('date')
+            
+            # Prepare the updated chart data
+            chart_data = {
+                'dates': [sale['date'].strftime('%Y-%m-%d') for sale in sales_data],
+                'total_sales': [sale['total_sales'] for sale in sales_data],
+            }
+            
+            html_sales_table = render_to_string('employee/report.html', {'sales_data': sales_data})
+            return JsonResponse({'html_sales_table': html_sales_table})
+        else:
+            # Return form errors if the form is invalid
+            return JsonResponse({'errors': form.errors}, status=400)
+    else:
+        form = SaleForm()
+    
+    # Retrieve aggregated sales data grouped by date
+    sales_data = Sale.objects.values('date').annotate(
+        total_sales=Sum('total_sales'),
+        total_clients=Count('client', distinct=True)
+    ).order_by('date')
+    
+    # Retrieve list of clients for the dropdown
+    clients = Client.objects.all()
+    
+    # Prepare chart data
+    chart_data = {
+        'dates': [sale['date'].strftime('%Y-%m-%d') for sale in sales_data],
+        'total_sales': [sale['total_sales'] for sale in sales_data],
+    }
+
+    return render(request, 'employee/report.html', {
+        'form': form,
+        'sales_data': sales_data,
+        'chart_data': chart_data,
+        'clients': clients,  # Pass clients to the template
+    })
+    
+
+def sales_chart_view(request):
+    if request.method == 'POST':
+        form = SaleForm(request.POST)
+        if form.is_valid():
+            form.save()  # Save the new sale entry
+
+            # Prepare the updated sales data for AJAX response
+            sales_data = Sale.objects.values('date').annotate(
+                total_sales=Sum('total_sales'),
+                total_clients=Count('client', distinct=True)
+            ).order_by('date')
+            
+            # You should handle AJAX response here if needed
+            # return JsonResponse({'some_key': some_value})
+
+        else:
+            # Return form errors if the form is invalid
+            return JsonResponse({'errors': form.errors}, status=400)
+    else:
+        form = SaleForm()
+
+    # Retrieve aggregated sales data grouped by date
+    sales_data = Sale.objects.values('date').annotate(
+        total_sales=Sum('total_sales'),
+        total_clients=Count('client', distinct=True)
+    ).order_by('date')
+
+    # Prepare chart data
+    chart_data = {
+        'dates': [sale['date'].strftime('%Y-%m-%d') for sale in sales_data],
+        'total_sales': [float(sale['total_sales']) for sale in sales_data],  # Convert Decimal to float
+    }
+
+    return render(request, 'employee/sales_chart.html', {
+        'form': form,
+        'sales_data': sales_data,
+        'chart_data': chart_data,
+    })
 
 

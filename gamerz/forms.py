@@ -35,4 +35,20 @@ class MembershipForm(forms.ModelForm):
         fields = ['tier']
 
 
+class CustomSelect(forms.Select):
+    def __init__(self, *args, **kwargs):
+        kwargs['attrs'] = {'class': 'form-control custom-select'}
+        super().__init__(*args, **kwargs)
+
+
+class SaleForm(forms.ModelForm):
+    class Meta:
+        model = Sale
+        fields = ['date', 'client', 'total_sales']
+        widgets = {
+            'date': forms.TextInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'client': CustomSelect(),  # Apply the custom widget
+            'total_sales': forms.NumberInput(attrs={'class': 'form-control'}),
+        }
+
 

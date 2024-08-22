@@ -130,5 +130,17 @@ class MembershipPlan(models.Model):
         return self.name
 
 
+class Client(models.Model):
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
+    def __str__(self):
+        return self.user.username
+
+class Sale(models.Model):
+    date = models.DateField()
+    client = models.ForeignKey(Client, on_delete=models.CASCADE)
+    total_sales = models.DecimalField(max_digits=10, decimal_places=2)
+
+    def __str__(self):
+        return f"{self.date} - {self.client.user.username} - {self.total_sales}"
 

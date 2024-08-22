@@ -89,7 +89,7 @@
             <hr class="bg-light">
             <ul class="nav flex-column">
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'home' %}"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                    <a class="nav-link" href="{% url 'employee' %}"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'manage_gamers' %}"><i class="fas fa-users"></i> Manage Gamers</a>
@@ -131,7 +131,7 @@
                     <div class="card">
                         <div class="card-body">
                             <h5 class="card-title">Active Gamers</h5>
-                            <p class="card-text">120</p>
+                            <p class="card-text">{{ active_gamers_count }}</p>
                         </div>
                     </div>
                 </div>
@@ -139,7 +139,7 @@
                     <div class="card">
                         <div class="card-body">
                             <h5 class="card-title">Reservations Today</h5>
-                            <p class="card-text">30</p>
+                            <p class="card-text">{{ reservations_today_count }}</p>
                         </div>
                     </div>
                 </div>
@@ -147,7 +147,7 @@
                     <div class="card">
                         <div class="card-body">
                             <h5 class="card-title">Games in Progress</h5>
-                            <p class="card-text">15</p>
+                            <p class="card-text">{{ games_in_progress_count }}</p>
                         </div>
                     </div>
                 </div>
@@ -163,31 +163,30 @@
                                 <th>Gamer ID</th>
                                 <th>Username</th>
                                 <th>Current Game</th>
-                                <th>Playtime</th>
+                                <th>Playtime (minutes)</th>
                                 <th>Status</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>001</td>
-                                <td>GamerX</td>
-                                <td>FIFA 25</td>
-                                <td>1h 20m</td>
-                                <td><span class="badge badge-success">Active</span></td>
-                                <td><button class="btn btn-custom">View</button></td>
-                            </tr>
-                            <tr>
-                                <td>002</td>
-                                <td>GamerPro</td>
-                                <td>Call of Duty</td>
-                                <td>45m</td>
-                                <td><span class="badge badge-warning">Idle</span></td>
-                                <td><button class="btn btn-custom">View</button></td>
-                            </tr>
-                            <!-- Add more rows as needed -->
+                            {% for game in gamers_activity %}
+                                <tr>
+                                    <td>{{ game.gamer_id }}</td>
+                                    <td>{{ game.username }}</td>
+                                    <td>{{ game.game_title }}</td>
+                                    <td>{{ game.playtime }}</td>
+                                    <td><span class="badge {% if game.status == 'Active' %}badge-success{% elif game.status == 'Paused' %}badge-warning{% else %}badge-secondary{% endif %}">{{ game.status }}</span></td>
+                                    <td>
+                                        {% if game.id %}
+                                            <a href="{% url 'ongoing_game_detail' game.id %}" class="btn btn-custom">View</a>
+                                        {% else %}
+                                            <span class="text-muted">No details available</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
                         </tbody>
-                    </table>
+                    </table>                    
                 </div>
             </div>
 

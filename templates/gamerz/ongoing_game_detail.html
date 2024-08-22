@@ -1,0 +1,26 @@
+{% extends 'dashboard/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>{{ game.game_title }} - Details</h2>
+    <table class="table table-bordered">
+        <tr>
+            <th>Gamer</th>
+            <td>{{ game.user.username }}</td>
+        </tr>
+        <tr>
+            <th>Gaming Station</th>
+            <td>{{ game.station.name }}</td>
+        </tr>
+        <tr>
+            <th>Start Time</th>
+            <td>{{ game.start_time }}</td>
+        </tr>
+        <tr>
+            <th>Status</th>
+            <td>{{ game.status }}</td>
+        </tr>
+    </table>
+    <a href="{% url 'employee' %}" class="btn btn-primary">Back to Dashboard</a>
+</div>
+{% endblock %}
