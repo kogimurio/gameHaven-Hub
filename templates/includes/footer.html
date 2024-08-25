@@ -14,15 +14,14 @@
                 <p>
                     <a href="{% url 'home' %}" class="text-light" style="text-decoration: none;">Home</a>
                 </p>
-                <p>
-                    <a href="{% url 'game_list' %}" class="text-light" style="text-decoration: none;">Games</a>
-                </p>
+                {% if request.user.is_authenticated %}
                 <p>
                     <a href="{% url 'event_list' %}" class="text-light" style="text-decoration: none;">Events / Tournaments</a>
                 </p>
                 <p>
                     <a href="{% url 'events' %}" class="text-light" style="text-decoration: none;">My Events</a>
                 </p>
+                {% endif %}
                 <p>
                     <a href="{% url 'selectmembership' %}" class="text-light" style="text-decoration: none;">Membership</a>
                 </p>

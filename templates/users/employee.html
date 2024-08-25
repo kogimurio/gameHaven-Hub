@@ -19,7 +19,7 @@
             padding-top: 20px;
             position: fixed;
             top: 0;
-            bottom: 0;
+            left: 0;
             width: 250px;
             transition: all 0.3s;
         }
@@ -37,6 +37,7 @@
         .content {
             margin-left: 250px;
             padding: 20px;
+            transition: margin-left 0.3s;
         }
         .dashboard-header {
             font-size: 2rem;
@@ -62,20 +63,54 @@
             background-color: #ff5722;
             color: #fff;
             border-radius: 20px;
+            border: none;
+            padding: 6px 12px;
         }
         .btn-custom:hover {
             background-color: #e64a19;
         }
-
-        /* Responsive adjustments */
-        @media (max-width: 768px) {
+        .btn-danger {
+            background-color: #dc3545;
+            color: #fff;
+            border-radius: 20px;
+            border: none;
+            padding: 6px 12px;
+        }
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+        @media (max-width: 1200px) {
+            .sidebar {
+                width: 200px;
+            }
+            .content {
+                margin-left: 200px;
+            }
+        }
+        @media (max-width: 992px) {
             .sidebar {
                 width: 100%;
                 height: auto;
                 position: relative;
+                margin-bottom: 20px;
+                padding-left: 0;
             }
             .content {
                 margin-left: 0;
+            }
+        }
+        @media (max-width: 768px) {
+            .dashboard-header {
+                font-size: 1.5rem;
+            }
+            .card {
+                margin-bottom: 15px;
+            }
+            .content {
+                padding: 10px;
+            }
+            .table thead th {
+                font-size: 0.875rem;
             }
         }
     </style>
@@ -106,7 +141,6 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'manageevents' %}"><i class="fas fa-calendar-plus"></i> Manage Events</a>
                 </li>
-                
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'chat_room' 1 %}"><i class="fas fa-comments"></i> Chat Room</a>
                 </li>
@@ -162,7 +196,6 @@
                                 <th>Current Game</th>
                                 <th>Playtime (minutes)</th>
                                 <th>Status</th>
-                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -173,13 +206,6 @@
                                     <td>{{ game.game_title }}</td>
                                     <td>{{ game.playtime }}</td>
                                     <td><span class="badge {% if game.status == 'Active' %}badge-success{% elif game.status == 'Paused' %}badge-warning{% else %}badge-secondary{% endif %}">{{ game.status }}</span></td>
-                                    <td>
-                                        {% if game.id %}
-                                            <a href="{% url 'ongoing_game_detail' game.id %}" class="btn btn-custom">View</a>
-                                        {% else %}
-                                            <span class="text-muted">No details available</span>
-                                        {% endif %}
-                                    </td>
                                 </tr>
                             {% endfor %}
                         </tbody>

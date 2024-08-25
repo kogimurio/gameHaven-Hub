@@ -1,69 +1,103 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block title %}
-    GameHaven
+    GameHaven Hub
 {% endblock %}
 {% block content %}
 <style>
+    /* Global Styles */
     body {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        background-color: #121212;
-        color: #f8f9fa;
+        font-family: 'Roboto', sans-serif;
+        background-color: #1a1a1a;
+        color: #e0e0e0;
+        line-height: 1.6;
     }
+
+    /* Hero Section */
     .hero-section {
         background-image: url('{% static 'images/hero-bg.jpg' %}');
         background-size: cover;
         background-position: center;
-        padding: 100px 0;
+        padding: 80px 0;
         text-align: center;
-        color: #f8f9fa;
+        color: #fff;
     }
     .hero-section h1 {
-        font-size: 3.5rem;
-        font-weight: bold;
+        font-size: 3.2rem;
+        font-weight: 700;
+        margin-bottom: 20px;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
     }
     .hero-section p {
-        font-size: 1.3rem;
-        margin-top: 10px;
+        font-size: 1.2rem;
+        margin-bottom: 30px;
+        font-weight: 300;
     }
     .btn-hero {
-        background-color: #ff5722;
+        background-color: #ff7043;
         color: #fff;
-        border-radius: 20px;
+        padding: 12px 30px;
+        font-size: 1rem;
+        border-radius: 30px;
+        transition: background-color 0.3s ease;
     }
     .btn-hero:hover {
         background-color: #e64a19;
+        color: #fff;
     }
+
+    /* Feature Section */
     .feature-section {
-        padding: 60px 0;
-        background-color: #1f1f1f;
+        padding: 50px 0;
+        background-color: #212121;
     }
     .feature-section .feature {
-        margin-bottom: 30px;
+        margin-bottom: 40px;
+        padding: 20px;
+        border-radius: 10px;
+        transition: transform 0.3s ease;
+        background-color: #292929;
+    }
+    .feature-section .feature:hover {
+        transform: translateY(-10px);
     }
     .feature-section h3 {
-        font-size: 1.75rem;
+        font-size: 1.6rem;
+        font-weight: 600;
         margin-bottom: 15px;
     }
+    .feature-section p {
+        font-size: 1rem;
+        color: #bdbdbd;
+    }
+
+    /* Event Section */
     .event-section {
         padding: 60px 0;
-        background-color: #2c2c2c;
+        background-color: #1e1e1e;
     }
     .event-section h2 {
-        font-size: 2.5rem;
-        margin-bottom: 30px;
+        font-size: 2.4rem;
+        margin-bottom: 40px;
         text-align: center;
+        color: #ff7043;
+        font-weight: 700;
     }
     .event-card {
-        background-color: #1f1f1f;
+        background-color: #292929;
         border: none;
         border-radius: 10px;
         height: 100%;
         display: flex;
         flex-direction: column;
+        transition: box-shadow 0.3s ease;
+    }
+    .event-card:hover {
+        box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);
     }
     .event-card img {
-        height: 200px;
+        height: 180px;
         object-fit: cover;
         border-top-left-radius: 10px;
         border-top-right-radius: 10px;
@@ -73,37 +107,68 @@
         flex-grow: 1;
     }
     .event-card-title {
-        font-size: 1.5rem;
-        color: #ff5722;
+        font-size: 1.4rem;
+        font-weight: 600;
+        color: #ff7043;
+        margin-bottom: 15px;
     }
+    .event-card p {
+        font-size: 0.95rem;
+        color: #bdbdbd;
+        margin-bottom: 20px;
+    }
+    .btn-hero {
+        background-color: #ff7043;
+        color: #fff;
+        padding: 10px 20px;
+        font-size: 0.9rem;
+        border-radius: 20px;
+        transition: background-color 0.3s ease;
+    }
+    .btn-hero:hover {
+        background-color: #e64a19;
+    }
+
+    /* Community Section */
     .community-section {
         padding: 60px 0;
         text-align: center;
+        background-color: #212121;
     }
     .community-section h2 {
-        font-size: 2.5rem;
+        font-size: 2.4rem;
         margin-bottom: 30px;
+        color: #ff7043;
+        font-weight: 700;
     }
     .community-section p {
-        font-size: 1.2rem;
-        margin-bottom: 20px;
+        font-size: 1.1rem;
+        margin-bottom: 25px;
+        color: #bdbdbd;
     }
     .community-section .btn {
-        background-color: #ff5722;
+        background-color: #ff7043;
         color: #fff;
-        border-radius: 20px;
+        padding: 12px 30px;
+        font-size: 1rem;
+        border-radius: 30px;
+        transition: background-color 0.3s ease;
     }
     .community-section .btn:hover {
         background-color: #e64a19;
     }
+
+    /* Sidebar Section */
     .news-sidebar {
-        background-color: #1f1f1f;
+        background-color: #292929;
         padding: 20px;
         border-radius: 10px;
+        margin-top: 20px;
     }
     .news-sidebar h4 {
         font-size: 1.5rem;
-        color: #ff5722;
+        font-weight: 600;
+        color: #ff7043;
         margin-bottom: 15px;
     }
     .news-sidebar ul {
@@ -111,13 +176,16 @@
         padding-left: 0;
     }
     .news-sidebar li {
-        margin-bottom: 10px;
+        margin-bottom: 12px;
     }
     .news-sidebar li a {
-        color: #f8f9fa;
+        color: #e0e0e0;
+        font-size: 1rem;
         text-decoration: none;
+        transition: color 0.3s ease;
     }
     .news-sidebar li a:hover {
+        color: #ff7043;
         text-decoration: underline;
     }
 </style>
@@ -127,6 +195,7 @@
     <div class="container">
         <h1>Welcome {{ request.user.username }} to GameHaven Hub</h1>
         <p>Your Ultimate Gaming Experience Starts Here</p>
+        <a href="{% url 'register' %}" class="btn btn-hero">Join Now</a>
     </div>
 </section>
 
@@ -196,10 +265,10 @@
             <div class="news-sidebar">
                 <h4>Latest News</h4>
                 <ul>
-                    <li><a href="#">FC25 will be out on September 25</a></li>
-                    <li><a href="#">New Tournament: Fall Frenzy 2024</a></li>
-                    <li><a href="#">Exclusive Membership Benefits Revealed</a></li>
-                    <li><a href="#">GameHaven Hub's Top 10 Games of 2024</a></li>
+                    <li><a href="#">FC25 will be out on Sept 25</a></li>
+                    <li><a href="#">Join the Summer Gaming Bash</a></li>
+                    <li><a href="#">Pro Gamer League registration now open</a></li>
+                    <li><a href="#">Exclusive memberships now available</a></li>
                 </ul>
             </div>
         </div>
@@ -210,8 +279,8 @@
 <section class="community-section">
     <div class="container">
         <h2>Join Our Community</h2>
-        <p>Connect with fellow gamers, share your experiences, and stay updated on all things gaming.</p>
-        <a href="{% url 'register' %}" class="btn btn-lg">Get Involved</a>
+        <p>Connect with gamers worldwide, share tips, and make new friends.</p>
+        <a href="{% url 'register' %}" class="btn">Sign Up Now</a>
     </div>
 </section>
 {% endblock %}

@@ -23,4 +23,7 @@ class UserRegistrationForm(UserCreationForm):
             user.save()
         return user
 
-
+class UserForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'role', 'is_active']

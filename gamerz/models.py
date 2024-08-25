@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from django.utils import timezone
 
 class Game(models.Model):
     title = models.CharField(max_length=255)
@@ -9,6 +10,7 @@ class Game(models.Model):
     rating = models.FloatField()
     favorite_by = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='favorite_games', blank=True)
     image = models.ImageField(upload_to='game_images/', blank=True, null=True)
+    status = models.CharField(max_length=50, null=True)
 
     def __str__(self):
         return self.title
@@ -36,10 +38,10 @@ class Reservation(models.Model):
 class OngoingGame(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     station = models.ForeignKey(GamingStation, on_delete=models.CASCADE)
-    game_title = models.CharField(max_length=255)
+    game_title = models.ForeignKey(Game, on_delete=models.CASCADE, null=True)
     start_time = models.DateTimeField()
     status = models.CharField(max_length=50, choices=[('Active', 'Active'), ('Paused', 'Paused'), ('Completed', 'Completed')])
-    
+
     def __str__(self):
         return f"{self.game_title} at {self.station.name} by {self.user.username}"
 
@@ -146,4 +148,12 @@ class Sale(models.Model):
 
     def __str__(self):
         return f"{self.date} - {self.client.user.username} - {self.total_sales}"
+
+
+class LoginLog(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    login_time = models.DateTimeField(default=timezone.now)
+    
+    def __str__(self):
+        return f"{self.user.username} logged in at {self.login_time}"
 

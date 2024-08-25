@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from.forms import UserRegistrationForm
+from.forms import *
 from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm
@@ -7,12 +7,14 @@ import pyotp
 from .models import User
 from django.contrib.auth import get_user_model
 from django.utils import timezone
-from gamerz.models import OngoingGame, Reservation
+from gamerz.models import *
 from datetime import datetime, timedelta
 from django.contrib import messages
 from django.conf import settings
 from django.core.mail import send_mail
 import logging
+from django.utils import timezone
+
 
 
 logger = logging.getLogger(__name__)
@@ -145,7 +147,38 @@ def otp_view(request):
 
 
 def admin_dashboard_view(request):
-    return render(request, 'users/admin.html')
+
+    users = User.objects.all()
+
+    # Calculate total gamers
+    total_gamers = User.objects.filter(role='GAMER', is_active=True).count()
+
+    # Calculate active games
+    active_games = Game.objects.filter(status='active').count()
+
+    # Calculate upcoming tournaments
+    scheduled_tournaments = Event.objects.filter(status='Scheduled').count()
+
+    # Calculate today's reservations
+    today = timezone.now().date()
+    reservations_today = Reservation.objects.filter(start_time__date=today).count()
+
+    # Fetch all ongoing games
+    ongoing_games = OngoingGame.objects.all()
+
+    # Fetch recent login logs
+    recent_logins = LoginLog.objects.order_by('-login_time')[:5]
+
+    context = {
+        'total_gamers': total_gamers,
+        'active_games': active_games,
+        'scheduled_tournaments': scheduled_tournaments,
+        'reservations_today': reservations_today,
+        'users': users,
+        'ongoing_games': ongoing_games,
+        'recent_logins': recent_logins,  # Pass recent logins to the template
+    }
+    return render(request, 'users/admin.html', context)
 
 
 def employee_dashboard_view(request):
@@ -210,3 +243,40 @@ def register_view(request):
 def profile_view(request):
     return render(request, 'users/profile.html')
 
+
+
+def user_edit_view(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+
+    if request.method == 'POST':
+        form = UserForm(request.POST, instance=user)
+        if form.is_valid():
+            form.save()
+            return redirect('admin')
+    else:
+        form = UserForm(instance=user)
+
+    return render(request, 'users/user_edit.html', {'form': form, 'user': user})
+
+
+def delete_user(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+    user.delete()
+    return redirect('admin')
+
+def admin_register_user_view(request):    
+    if request.method == "POST":
+        form = UserRegistrationForm(request.POST)
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.role = form.cleaned_data.get('role', 'GAMER')  # Default to 'GAMER' if no role is provided
+            user.save()
+
+            # Store the username in session
+            request.session['username'] = user.username
+            return redirect('admin')
+        else:
+            for error in list(form.errors.values()):
+                print(request, error)
+    form = UserRegistrationForm()
+    return render(request, 'admin/admin_register_user.html', {'form': form})
